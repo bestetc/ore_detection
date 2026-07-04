@@ -47,6 +47,19 @@ class TestBackendService(unittest.TestCase):
 
             self.assertEqual([p.name for p in images], ["a.jpg", "b.jpg"])
 
+    def test_repo_demo_images_are_available_to_ui_listing(self):
+        images = list_ui_images(Path("datasets"))
+
+        self.assertIn(Path("datasets/demo/hard_ore_demo.jpg"), images)
+        self.assertIn(Path("datasets/demo/normal_ore_demo.jpg"), images)
+
+    def test_default_runtime_artifact_paths_exist(self):
+        config = BackendConfig().resolve()
+
+        self.assertTrue(config.binary_model_path.exists())
+        self.assertTrue(config.ore_model_path.exists())
+        self.assertTrue(config.intergrowth_classifier_path.exists())
+
     def test_create_prediction_from_request_writes_artifacts(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -87,6 +100,9 @@ class TestBackendService(unittest.TestCase):
         self.assertIn("Run intergrowth classification", html)
         self.assertIn("intergrowth score", html)
         self.assertIn("/intergrowth", html)
+        self.assertIn("Drag and drop an image here", html)
+        self.assertIn("/upload-image", html)
+        self.assertIn("fileInput", html)
         self.assertNotIn("Brush", html)
         self.assertNotIn("Talc mask creation", html)
 

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
 
 from ore_detection.descriptors.intergrowth_classification import (
     BACKGROUND_ID,
@@ -83,8 +83,12 @@ def erode_binary_mask(mask: Image.Image, *, kernel_size: int = 5, iterations: in
     if iterations < 0:
         raise ValueError("iterations must be non-negative")
     eroded = mask.convert("L").point(lambda value: 255 if value > 0 else 0)
+    radius = kernel_size // 2
     for _ in range(iterations):
-        eroded = eroded.filter(ImageFilter.MinFilter(kernel_size))
+        padded = ImageOps.expand(eroded, border=radius, fill=0)
+        eroded = padded.filter(ImageFilter.MinFilter(kernel_size)).crop(
+            (radius, radius, radius + eroded.width, radius + eroded.height)
+        )
     return eroded
 
 
@@ -101,32 +105,64 @@ def _axis_windows(length: int, window_size: int) -> list[tuple[int, int]]:
     return [(start, min(length, start + window)) for start in starts]
 
 
-def _window_erosion_ratio(mask: Image.Image, *, config: ErosionRatioConfig) -> tuple[float, float, int, int]:
-    values = mask.convert("L").tobytes()
+def _window_erosion_ratio(
+    mask: Image.Image,
+    *,
+    config: ErosionRatioConfig,
+    class_mask: Image.Image | None = None,
+    background_index: int = 0,
+) -> tuple[float, float, int, int, int]:
+    class_values = class_mask.convert("L").tobytes() if class_mask is not None else None
+    values = class_values if class_values is not None else mask.convert("L").tobytes()
     pixel_count = len(values)
-    ore_area = sum(1 for value in values if value > 0)
+    if class_values is not None:
+        class_ids = sorted({int(value) for value in class_values if int(value) != int(background_index)})
+        ore_area = sum(1 for value in class_values if int(value) != int(background_index))
+    else:
+        class_ids = []
+        ore_area = sum(1 for value in values if value > 0)
     ore_fraction = ore_area / pixel_count if pixel_count else 0.0
     if pixel_count == 0 or ore_area == 0 or ore_fraction < config.min_ore_fraction:
-        return 0.0, ore_fraction, ore_area, 0
-    eroded = erode_binary_mask(mask, kernel_size=config.erosion_kernel_size, iterations=config.erosion_iterations)
-    eroded_area = sum(1 for value in eroded.tobytes() if value > 0)
-    return eroded_area / ore_area, ore_fraction, ore_area, eroded_area
+        return 0.0, ore_fraction, ore_area, 0, 0
+
+    if class_mask is None:
+        eroded = erode_binary_mask(mask, kernel_size=config.erosion_kernel_size, iterations=config.erosion_iterations)
+        eroded_area = sum(1 for value in eroded.tobytes() if value > 0)
+        return eroded_area / ore_area, ore_fraction, ore_area, eroded_area, 1
+
+    if not class_ids:
+        return 0.0, ore_fraction, ore_area, 0, 0
+
+    eroded_area = 0
+    for class_id in class_ids:
+        class_binary = Image.new("L", class_mask.size)
+        class_binary.putdata([255 if int(value) == class_id else 0 for value in class_values])
+        eroded = erode_binary_mask(class_binary, kernel_size=config.erosion_kernel_size, iterations=config.erosion_iterations)
+        eroded_area += sum(1 for value in eroded.tobytes() if value > 0)
+    return eroded_area / ore_area, ore_fraction, ore_area, eroded_area, len(class_ids)
 
 
 def erosion_ratio_score_map(
     ore_mask: Image.Image,
     *,
+    multiclass_mask: Image.Image | None = None,
+    background_index: int = 0,
     config: ErosionRatioConfig | None = None,
 ) -> tuple[Image.Image, list[dict[str, Any]]]:
     """Return a 0..255 normal-ore score image from local erosion ratios.
 
-    The local window value is ``eroded_ore_area / ore_area``. Windows with ore
-    area below ``min_ore_fraction`` receive score 0. The coarse window grid is
-    resized with bilinear interpolation to create a full-resolution score map.
+    The local window value is ``eroded_ore_area / ore_area``. When a multiclass
+    mineral mask is provided, each non-background class is eroded separately and
+    eroded areas are summed. Windows with ore area below ``min_ore_fraction``
+    receive score 0. The coarse window grid is resized with bilinear
+    interpolation to create a full-resolution score map.
     """
     cfg = config or ErosionRatioConfig()
     cfg.validate()
     ore = ore_mask.convert("L").point(lambda value: 255 if value > 0 else 0)
+    classes = multiclass_mask.convert("L") if multiclass_mask is not None else None
+    if classes is not None and classes.size != ore.size:
+        raise ValueError("multiclass_mask size must match ore_mask size")
     x_windows = _axis_windows(ore.width, cfg.window_size)
     y_windows = _axis_windows(ore.height, cfg.window_size)
     if not x_windows or not y_windows:
@@ -137,7 +173,12 @@ def erosion_ratio_score_map(
     for top, bottom in y_windows:
         for left, right in x_windows:
             box = (left, top, right, bottom)
-            ratio, ore_fraction, ore_area, eroded_area = _window_erosion_ratio(ore.crop(box), config=cfg)
+            ratio, ore_fraction, ore_area, eroded_area, class_count = _window_erosion_ratio(
+                ore.crop(box),
+                config=cfg,
+                class_mask=classes.crop(box) if classes is not None else None,
+                background_index=background_index,
+            )
             ratios.append(ratio)
             summaries.append(
                 {
@@ -148,6 +189,8 @@ def erosion_ratio_score_map(
                     "ore_area_fraction": ore_fraction,
                     "ore_area": ore_area,
                     "eroded_ore_area": eroded_area,
+                    "class_count": class_count,
+                    "class_aware_erosion": classes is not None,
                 }
             )
 
@@ -155,9 +198,7 @@ def erosion_ratio_score_map(
     coarse.putdata(ratios)
     resampling = getattr(Image, "Resampling", Image).BILINEAR
     interpolated = coarse.resize(ore.size, resampling)
-    score_values = [int(round(max(0.0, min(1.0, float(value))) * 255)) for value in interpolated.getdata()]
-    score = Image.new("L", ore.size)
-    score.putdata(score_values)
+    score = interpolated.point(lambda value: value * 255 + 0.5).convert("L")
     return score, summaries
 
 
@@ -173,6 +214,8 @@ def invert_score_on_ore(score: Image.Image, ore_mask: Image.Image) -> Image.Imag
 def classify_erosion_ratio_intergrowth(
     ore_mask: Image.Image,
     *,
+    multiclass_mask: Image.Image | None = None,
+    background_index: int = 0,
     config: ErosionRatioConfig | None = None,
     talc_mask: Image.Image | None = None,
     ignore_mask: Image.Image | None = None,
@@ -181,7 +224,12 @@ def classify_erosion_ratio_intergrowth(
     cfg = config or ErosionRatioConfig()
     cfg.validate()
     ore = ore_mask.convert("L")
-    ratio_score, summaries = erosion_ratio_score_map(ore, config=cfg)
+    ratio_score, summaries = erosion_ratio_score_map(
+        ore,
+        multiclass_mask=multiclass_mask,
+        background_index=background_index,
+        config=cfg,
+    )
     normal_threshold_u8 = int(round(cfg.normal_threshold * 255))
     talc_values = talc_mask.convert("L").tobytes() if talc_mask is not None else None
     ignore_values = ignore_mask.convert("L").tobytes() if ignore_mask is not None else None

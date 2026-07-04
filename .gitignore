@@ -1,9 +1,21 @@
-# Project data and generated artifacts
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.hermes/
+.codex/
+*.egg-info/
+
+# Local-only project data and generated artifacts
 dataset/
-datasets/
+datasets/*
+!datasets/demo/
+!datasets/demo/**
 data_work/
 configs/
 pics/
 
-# Hidden directories at any depth
-.*/
+# Local secret/environment files
+.env
+.env.*

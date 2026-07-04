@@ -7,6 +7,7 @@ class TestUiRunScripts(unittest.TestCase):
         script = Path("run_ui.cmd")
         self.assertTrue(script.exists())
         content = script.read_text(encoding="utf-8")
+        self.assertIn(".venv\\Scripts\\python.exe", content)
         self.assertIn("py -3.13", content)
         self.assertIn("scripts\\run_backend_ui.py", content)
         self.assertIn("--host", content)
@@ -16,9 +17,30 @@ class TestUiRunScripts(unittest.TestCase):
         script = Path("run_ui.sh")
         self.assertTrue(script.exists())
         content = script.read_text(encoding="utf-8")
+        self.assertIn(".venv/bin/python", content)
+        self.assertIn("python3.13", content)
         self.assertIn("py -3.13", content)
         self.assertIn("scripts/run_backend_ui.py", content)
-        self.assertIn("PYTHONPATH=src", content)
+        self.assertIn('PYTHONPATH="src', content)
+
+    def test_windows_cpu_setup_script_installs_cpu_torch(self):
+        script = Path("setup_ui_cpu.cmd")
+        self.assertTrue(script.exists())
+        content = script.read_text(encoding="utf-8")
+        self.assertIn("py -3.13 -m venv .venv", content)
+        self.assertIn("pip install -r requirements.txt", content)
+        self.assertIn("pip install torch --index-url https://download.pytorch.org/whl/cpu", content)
+        self.assertIn("run_ui.cmd", content)
+
+    def test_posix_cpu_setup_script_installs_cpu_torch(self):
+        script = Path("setup_ui_cpu.sh")
+        self.assertTrue(script.exists())
+        content = script.read_text(encoding="utf-8")
+        self.assertIn("python3.13", content)
+        self.assertIn("pip install -r requirements.txt", content)
+        self.assertIn("pip install torch --index-url https://download.pytorch.org/whl/cpu", content)
+        self.assertIn("pip install torch", content)
+        self.assertIn("./run_ui.sh", content)
 
 
 if __name__ == "__main__":

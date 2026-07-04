@@ -49,7 +49,7 @@ class TestPanoramaTiledPrediction(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            image_path = root / "panorama.png"
+            image_path = root / "source.png"
             Image.new("RGB", (30, 18), (100, 110, 120)).save(image_path)
 
             artifacts = save_tiled_segmentation_prediction(

@@ -1,11 +1,5 @@
-# Pinned direct dependencies used by the project source, tests, and notebooks.
-# Torch is pinned to the CUDA 12.8 build found in the current environment.
---extra-index-url https://download.pytorch.org/whl/cu128
-
-ipython==9.12.0
-matplotlib==3.10.8
-numpy==2.4.4
+# Runtime dependencies for the local UI.
+#
+# PyTorch is installed separately by setup_ui_cpu.* so CPU-only users do not
+# accidentally install a CUDA wheel from a project requirements file.
 Pillow==12.2.0
-pytest==9.1.1
-torch==2.7.1+cu128
-tqdm==4.67.3

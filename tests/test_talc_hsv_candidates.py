@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -75,14 +76,11 @@ class TestTalcHsvCandidates(unittest.TestCase):
     def test_iter_baseline_crop_paths_skips_panoramas_folder(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            panorama = root / "panoramas" / "1.jpg"
+            panorama = root / "panoramas" / "unlabeled"
             crop = root / "Part 1" / "Hard ore" / "crop.jpg"
-            panorama.parent.mkdir(parents=True)
-            crop.parent.mkdir(parents=True)
-            Image.new("RGB", (1, 1)).save(panorama)
-            Image.new("RGB", (1, 1)).save(crop)
 
-            paths = iter_baseline_crop_paths(root)
+            with patch("ore_detection.talc.hsv_candidates.iter_image_paths", return_value=[crop, panorama]):
+                paths = iter_baseline_crop_paths(root)
 
             self.assertEqual(paths, [crop])
 

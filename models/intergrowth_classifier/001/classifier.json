@@ -1,0 +1,23 @@
+{
+  "model_type": "local_morphology_linear_score",
+  "version": 1,
+  "window_size": 128,
+  "stride": 256,
+  "small_area_threshold": 25,
+  "hard_threshold": 0.5,
+  "min_ore_fraction": 0.001,
+  "class_ids": {
+    "background": 0,
+    "talc": 3,
+    "normal_ore": 4,
+    "hard_ore": 5,
+    "ignore": 255
+  },
+  "feature_weights": {
+    "small_object_fraction": 0.3,
+    "fragmentation_score": 0.25,
+    "dominant_component_inverse": 0.25,
+    "boundary_contact_score": 0.2,
+    "mineral_contact_score": 0.1
+  }
+}

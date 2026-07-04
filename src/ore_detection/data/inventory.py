@@ -36,6 +36,8 @@ def inventory_baseline_images(root: str | Path) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
     for image_path in _iter_files(root, IMAGE_SUFFIXES):
         rel = image_path.relative_to(root)
+        if "panoramas" in {part.lower() for part in rel.parts}:
+            continue
         if len(rel.parts) < 3:
             continue
         part, label = rel.parts[0], rel.parts[1]

@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -12,10 +13,13 @@ class TestInventory(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             image_path = root / "baseline" / "Part 2" / "Hard ore" / "sample.JPG"
+            panorama = root / "baseline" / "panoramas" / "unlabeled"
+            nested_panorama = root / "baseline" / "panoramas" / "Part 2" / "Hard ore" / "unlabeled"
             image_path.parent.mkdir(parents=True)
             Image.new("RGB", (3, 2), color=(1, 2, 3)).save(image_path)
 
-            records = inventory_baseline_images(root / "baseline")
+            with patch("ore_detection.data.inventory._iter_files", return_value=[image_path, panorama, nested_panorama]):
+                records = inventory_baseline_images(root / "baseline")
 
             self.assertEqual(len(records), 1)
             self.assertEqual(records[0]["dataset"], "baseline")

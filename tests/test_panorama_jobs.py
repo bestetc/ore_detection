@@ -20,7 +20,7 @@ class TestPanoramaJobs(unittest.TestCase):
     def test_panorama_job_progress_reaches_completed_with_artifacts(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            image_path = root / "panorama.png"
+            image_path = root / "source.png"
             checkpoint_path = root / "binary.pt"
             Image.new("RGB", (16, 16), (100, 110, 120)).save(image_path)
             model = create_simple_unet(out_channels=1)
@@ -63,7 +63,7 @@ class TestPanoramaJobs(unittest.TestCase):
     def test_panorama_job_can_run_ore_model_without_binary_chaining(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            image_path = root / "panorama.png"
+            image_path = root / "source.png"
             checkpoint_path = root / "ore.pt"
             Image.new("RGB", (16, 16), (100, 110, 120)).save(image_path)
             model = create_simple_unet(out_channels=3)

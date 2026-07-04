@@ -1,0 +1,6 @@
+# Optional training/notebook environment for CUDA machines.
+# The runnable UI does not require this file.
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+-r requirements-dev.txt
+torch==2.7.1+cu128

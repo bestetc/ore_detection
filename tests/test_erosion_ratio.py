@@ -29,6 +29,18 @@ def fragmented_ore(size: int = 32) -> Image.Image:
     return image
 
 
+def split_touching_mineral_block() -> tuple[Image.Image, Image.Image]:
+    ore = Image.new("L", (8, 8), 0)
+    mineral = Image.new("L", (8, 8), 0)
+    ore_pixels = ore.load()
+    pixels = mineral.load()
+    for y in range(1, 7):
+        for x in range(1, 7):
+            ore_pixels[x, y] = 1
+            pixels[x, y] = 1 if x < 4 else 2
+    return ore, mineral
+
+
 class TestErosionRatio(unittest.TestCase):
     def test_compact_mask_has_higher_erosion_ratio_than_fragmented_mask(self):
         config = ErosionRatioConfig(erosion_kernel_size=3, erosion_iterations=1, window_size=32, min_ore_fraction=0.0)
@@ -38,6 +50,36 @@ class TestErosionRatio(unittest.TestCase):
 
         self.assertGreater(compact_score.getpixel((16, 16)), fragmented_score.getpixel((16, 16)))
         self.assertEqual(fragmented_score.getpixel((16, 16)), 0)
+
+    def test_multiclass_erosion_erodes_each_touching_mineral_class_separately(self):
+        ore, mineral = split_touching_mineral_block()
+        config = ErosionRatioConfig(erosion_kernel_size=3, erosion_iterations=1, window_size=8, min_ore_fraction=0.0)
+
+        binary_score, binary_summaries = erosion_ratio_score_map(ore, config=config)
+        class_score, class_summaries = erosion_ratio_score_map(ore, multiclass_mask=mineral, config=config)
+
+        self.assertLess(class_score.getpixel((3, 3)), binary_score.getpixel((3, 3)))
+        self.assertEqual(binary_summaries[0]["eroded_ore_area"], 16)
+        self.assertEqual(class_summaries[0]["eroded_ore_area"], 8)
+        self.assertEqual(class_summaries[0]["class_count"], 2)
+        self.assertTrue(class_summaries[0]["class_aware_erosion"])
+
+    def test_multiclass_erosion_can_turn_close_mixed_block_to_hard(self):
+        ore, mineral = split_touching_mineral_block()
+        config = ErosionRatioConfig(
+            erosion_kernel_size=3,
+            erosion_iterations=1,
+            window_size=8,
+            min_ore_fraction=0.0,
+            normal_threshold=0.30,
+        )
+
+        binary = classify_erosion_ratio_intergrowth(ore, config=config)
+        class_aware = classify_erosion_ratio_intergrowth(ore, multiclass_mask=mineral, config=config)
+
+        self.assertIn(NORMAL_ORE_ID, set(binary.intergrowth_mask.tobytes()))
+        self.assertIn(HARD_ORE_ID, set(class_aware.intergrowth_mask.tobytes()))
+        self.assertNotIn(NORMAL_ORE_ID, set(class_aware.intergrowth_mask.tobytes()))
 
     def test_low_ore_fraction_window_score_is_zero(self):
         image = Image.new("L", (32, 32), 0)

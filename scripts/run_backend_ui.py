@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run the local backend UI for HSV dummy segmentation."""
+"""Run the local backend UI for ore detection inference and review."""
 
 from __future__ import annotations
 

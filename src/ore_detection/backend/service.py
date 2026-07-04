@@ -1471,6 +1471,7 @@ def render_inference_html(
     th, td {{ border: 1px solid #ddd; padding: .25rem .45rem; text-align: right; }}
     th:first-child, td:first-child {{ text-align: left; }}
     .message {{ font-weight: 600; }}
+    .dropzone {{ background: #f6f8fa; border: 1px dashed #aaa; border-radius: 8px; padding: .75rem; margin: .5rem 0; }}
   </style>
 </head>
 <body>
@@ -1482,6 +1483,8 @@ def render_inference_html(
       <label>Image <input id="imagePath" name="image_path" list="imageOptions" placeholder="datasets/.../image.jpg"></label>
       <datalist id="imageOptions">{options}</datalist>
       <label>Choose indexed image <select id="imageSelect"><option value="">-- choose image --</option>{options}</select></label>
+      <div class="dropzone" id="dropzone">Drag and drop an image here, or <input type="file" id="fileInput" accept="image/*"></div>
+      <p id="uploadStatus"></p>
       <label>Model
         <select name="model_kind" id="modelKind">
           <option value="binary">binary segmentation</option>
@@ -1539,7 +1542,33 @@ let view = {{x:0,y:0,w:1,h:1}};
 let cropSelecting = false, cropStart = null, cropCurrent = null;
 const displayW = 520;
 const canvases = {{raw: rawCanvas, overlay: overlayCanvas, mask: maskCanvas}};
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const uploadStatus = document.getElementById('uploadStatus');
 imageSelect.addEventListener('change', () => {{ if (imageSelect.value) imagePath.value = imageSelect.value; }});
+function uploadFile(file) {{
+  const reader = new FileReader();
+  reader.onload = async () => {{
+    uploadStatus.textContent = 'Uploading image...';
+    const body = new URLSearchParams();
+    body.set('file_name', file.name);
+    body.set('image_data_url', reader.result);
+    const response = await fetch('/upload-image', {{method:'POST', headers:{{'Content-Type':'application/x-www-form-urlencoded'}}, body}});
+    const result = await response.json();
+    if (response.ok) {{
+      imagePath.value = result.relative_path;
+      imageSelect.value = '';
+      uploadStatus.textContent = 'Uploaded: ' + result.relative_path;
+    }} else {{
+      uploadStatus.textContent = 'Upload error: ' + result.error;
+    }}
+  }};
+  reader.readAsDataURL(file);
+}}
+fileInput.addEventListener('change', () => {{ if (fileInput.files[0]) uploadFile(fileInput.files[0]); }});
+dropzone.addEventListener('dragover', event => {{ event.preventDefault(); dropzone.style.background = '#e8f0fe'; }});
+dropzone.addEventListener('dragleave', () => {{ dropzone.style.background = '#f6f8fa'; }});
+dropzone.addEventListener('drop', event => {{ event.preventDefault(); dropzone.style.background = '#f6f8fa'; if (event.dataTransfer.files[0]) uploadFile(event.dataTransfer.files[0]); }});
 selectNewImage.onclick = () => imagePath.focus();
 selectNewModel.onclick = () => modelKind.focus();
 inferenceForm.addEventListener('submit', async event => {{
