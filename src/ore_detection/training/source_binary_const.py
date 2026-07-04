@@ -1,0 +1,12 @@
+"""Generated source binary segmentation training constants.
+
+This file is updated by scripts/prepare_source_binary_downsampled_dataset.py.
+Values are calculated from downsampled train images in the 0..1 tensor scale.
+"""
+
+SOURCE_BINARY_TRAIN_RGB_MEAN = (0.4691853836690349, 0.4398698336579204, 0.4024980066350099)
+SOURCE_BINARY_TRAIN_RGB_STD = (0.25512571009385043, 0.2335228905839328, 0.2100037541533096)
+SOURCE_BINARY_TRAIN_STATS_IMAGE_COUNT = 134
+SOURCE_BINARY_TRAIN_STATS_PIXEL_COUNT = 72269952
+SOURCE_BINARY_DOWNSAMPLE_FACTOR = 4
+SOURCE_BINARY_DOWNSAMPLE_SIZE_DIVISOR = 4

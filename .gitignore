@@ -1,0 +1,9 @@
+# Project data and generated artifacts
+dataset/
+datasets/
+data_work/
+configs/
+pics/
+
+# Hidden directories at any depth
+.*/
