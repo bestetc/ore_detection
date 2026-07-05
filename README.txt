@@ -2,7 +2,7 @@ See README.md for setup, UI launch, and inference instructions.
 
 Presentation: ./docs/ИИшенка.pptx
 
-Video: URL
+Video: https://disk.yandex.ru/i/L1Da33W4wp4ryQ
 
 
 notebooks:

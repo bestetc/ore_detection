@@ -70,6 +70,17 @@ After the job completes, the viewer shows:
 
 Use `+ scale`, `- scale`, `Crop area`, and `Full image` to inspect the same region across all three panels. The metrics table reports class pixel counts and fractions for the full image and the visible crop.
 
+Large panoramas are displayed as a resampled preview with the largest visible side capped at 1000 pixels. This only changes the browser preview size; prediction masks and saved outputs remain at the source resolution.
+
+Crop workflow:
+
+1. Click `Crop area`.
+2. Press the left mouse button on any image panel.
+3. Drag to choose the region.
+4. Release the left mouse button.
+
+The UI requests the backend only after mouse release. The `Visible crop` block is then recalculated from the cropped image and cropped mask only.
+
 ## 6. Optional Intergrowth Review
 
 Select `normal ore intergrowth mask` or `hard ore intergrowth mask` after a completed prediction. The UI automatically runs intergrowth classification when needed, then shows the selected soft mask. The metric table reports `Normal ore / ore pixels`.

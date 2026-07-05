@@ -9,10 +9,14 @@ The repository is prepared for CPU-only inference. A user can clone the repo, ru
 - Local stdlib HTTP UI with inference and active-learning review pages.
 - Trained source binary ore/background checkpoint:
   `models/source_binary_segmentation/001/best.pt`.
+- Finetuned CT-UNet ore/talc checkpoint:
+  `models/source_binary_segmentation_ct_unet/001/best.pt`.
 - Trained source multiclass ore checkpoint:
   `models/source_ore_segmentation/001/best.pt`.
 - Local morphology intergrowth classifier config:
   `models/intergrowth_classifier/001/classifier.json`.
+- Local erosion-ratio intergrowth config:
+  `models/intergrowth_erosion_ratio/001/classifier.json`.
 - Two small demo images:
   `datasets/demo/hard_ore_demo.jpg` and `datasets/demo/normal_ore_demo.jpg`.
 
@@ -61,6 +65,8 @@ http://127.0.0.1:7860
 ```
 
 Detailed inference instructions are in [docs/ui_inference.md](docs/ui_inference.md).
+
+The viewer downscales large panoramas for display to keep the UI responsive. Use `Crop area` to drag a viewport; tile images and the `Visible crop` metrics update after the mouse button is released.
 
 ## Verification
 
