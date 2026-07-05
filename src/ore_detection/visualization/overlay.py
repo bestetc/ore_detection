@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 DEFAULT_PALETTE: dict[int, tuple[int, int, int]] = {
@@ -27,18 +28,18 @@ def colorize_mask(
     taxonomy.
     """
     palette = palette or DEFAULT_PALETTE
-    mask_l = mask.convert("L")
-    raw = mask_l.tobytes()
-    pixels: list[tuple[int, int, int, int]] = []
-    for value in raw:
-        if value == 0:
-            pixels.append((0, 0, 0, 0))
+    mask_array = np.asarray(mask.convert("L"), dtype=np.uint8)
+    lookup = np.zeros((256, 4), dtype=np.uint8)
+    for class_id, rgb in palette.items():
+        if int(class_id) == 0:
             continue
-        rgb = palette.get(value, (255, 255, 255))
-        pixels.append((*rgb, alpha))
-    overlay = Image.new("RGBA", mask_l.size)
-    overlay.putdata(pixels)
-    return overlay
+        lookup[int(class_id) & 255] = (*rgb, int(alpha))
+    unknown = (255, 255, 255, int(alpha))
+    known_ids = np.zeros(256, dtype=bool)
+    for class_id in palette:
+        known_ids[int(class_id) & 255] = True
+    lookup[~known_ids & (np.arange(256) != 0)] = unknown
+    return Image.fromarray(lookup[mask_array])
 
 
 def overlay_mask_on_image(

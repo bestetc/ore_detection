@@ -1,0 +1,3122 @@
+[
+  {
+    "epoch": 1,
+    "train": {
+      "loss": 2.040474836031596,
+      "cross_entropy_loss": 1.174327305952708,
+      "dice_loss": 0.8661475539207458,
+      "mean_iou": 0.20377207944790524,
+      "background_iou": 0.2335178683201472,
+      "ore_iou": 0.3538340856631597,
+      "talc_iou": 0.023964269791819273
+    },
+    "test": {
+      "loss": 2.0904359022776284,
+      "cross_entropy_loss": 1.2120366096496582,
+      "dice_loss": 0.8783992926279703,
+      "mean_iou": 0.2102968692779541,
+      "background_iou": 0.01015275064855814,
+      "ore_iou": 0.6207378407319387,
+      "talc_iou": 1.1269551264403432e-11
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 1174,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.534923339011925,
+      "background_recall": 2.891636076180613e-05,
+      "background_iou": 2.8915633803757236e-05,
+      "ore_pred_pixels": 2089164,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.6061941523020692,
+      "ore_recall": 0.813435793284223,
+      "ore_iou": 0.5322008584542277,
+      "talc_pred_pixels": 22813342,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.06439074117242445,
+      "talc_recall": 0.9017771966334555,
+      "talc_iou": 0.06394228023573756
+    },
+    "selection_score": 0.3626048236223739
+  },
+  {
+    "epoch": 2,
+    "train": {
+      "loss": 1.7826841354370118,
+      "cross_entropy_loss": 0.939880891640981,
+      "dice_loss": 0.8428032358487447,
+      "mean_iou": 0.33116250137488046,
+      "background_iou": 0.4683783213297526,
+      "ore_iou": 0.5031624138355255,
+      "talc_iou": 0.021946756722172722
+    },
+    "test": {
+      "loss": 1.7238924900690715,
+      "cross_entropy_loss": 0.8817525108655294,
+      "dice_loss": 0.8421399792035421,
+      "mean_iou": 0.40567436814308167,
+      "background_iou": 0.4589173396428426,
+      "ore_iou": 0.7581057945887247,
+      "talc_iou": 2.8334130759237002e-11
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 14847547,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9677344008407585,
+      "background_recall": 0.6615990590947733,
+      "background_iou": 0.6473200685826301,
+      "ore_pred_pixels": 1315872,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7410492813890712,
+      "ore_recall": 0.6263249879086724,
+      "ore_iou": 0.5138605862945005,
+      "talc_pred_pixels": 8740261,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.15856826243518357,
+      "talc_recall": 0.8508001988986906,
+      "talc_iou": 0.15427822038285918
+    },
+    "selection_score": 0.41887668158868885
+  },
+  {
+    "epoch": 3,
+    "train": {
+      "loss": 1.7253594716389975,
+      "cross_entropy_loss": 0.8896192193031311,
+      "dice_loss": 0.8357402563095093,
+      "mean_iou": 0.3558600922425588,
+      "background_iou": 0.49049293994903564,
+      "ore_iou": 0.5448877175649007,
+      "talc_iou": 0.032199597205845046
+    },
+    "test": {
+      "loss": 1.504257082939148,
+      "cross_entropy_loss": 0.6885988910992941,
+      "dice_loss": 0.8156581521034241,
+      "mean_iou": 0.44781337181727093,
+      "background_iou": 0.5533526937166849,
+      "ore_iou": 0.7900873819986979,
+      "talc_iou": 1.688817095428045e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 16527114,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9849626498613128,
+      "background_recall": 0.7495502884291874,
+      "background_iou": 0.7410699819582995,
+      "ore_pred_pixels": 1569138,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7487346555879725,
+      "ore_recall": 0.7546195936671631,
+      "ore_iou": 0.6021348205769766,
+      "talc_pred_pixels": 6807428,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.21420204517770883,
+      "talc_recall": 0.8951453986261257,
+      "talc_iou": 0.20895905883337515
+    },
+    "selection_score": 0.4824550281638803
+  },
+  {
+    "epoch": 4,
+    "train": {
+      "loss": 1.669854704538981,
+      "cross_entropy_loss": 0.8442548910776774,
+      "dice_loss": 0.8255998293558756,
+      "mean_iou": 0.4016943951447805,
+      "background_iou": 0.5785951753457387,
+      "ore_iou": 0.5975389142831167,
+      "talc_iou": 0.02894906860165065
+    },
+    "test": {
+      "loss": 1.499819040298462,
+      "cross_entropy_loss": 0.6877922813097636,
+      "dice_loss": 0.8120267391204834,
+      "mean_iou": 0.4572295546531677,
+      "background_iou": 0.5852603216965994,
+      "ore_iou": 0.7864283720652262,
+      "talc_iou": 9.300508742778509e-11
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 14185377,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9908741938969969,
+      "background_recall": 0.6472072758352373,
+      "background_iou": 0.6433723365426752,
+      "ore_pred_pixels": 1531761,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7594304855653069,
+      "ore_recall": 0.7471676105288647,
+      "ore_iou": 0.6041697396275884,
+      "talc_pred_pixels": 9186542,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.16152965936475336,
+      "talc_recall": 0.910943111291184,
+      "talc_iou": 0.15901848908650626
+    },
+    "selection_score": 0.4625609658986831
+  },
+  {
+    "epoch": 5,
+    "train": {
+      "loss": 1.6355927387873332,
+      "cross_entropy_loss": 0.8101808428764343,
+      "dice_loss": 0.8254118998845418,
+      "mean_iou": 0.41171842416127524,
+      "background_iou": 0.5722600976626079,
+      "ore_iou": 0.6358915487925212,
+      "talc_iou": 0.027003597126046466
+    },
+    "test": {
+      "loss": 1.403617262840271,
+      "cross_entropy_loss": 0.6035517752170563,
+      "dice_loss": 0.8000654975573221,
+      "mean_iou": 0.46533621350924176,
+      "background_iou": 0.5886998573939005,
+      "ore_iou": 0.8073087135950724,
+      "talc_iou": 1.1217825973686146e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 13309341,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.989607524519809,
+      "background_recall": 0.606461913354151,
+      "background_iou": 0.602623905078146,
+      "ore_pred_pixels": 1573919,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7685980028197131,
+      "ore_recall": 0.7769993082411791,
+      "ore_iou": 0.6296940985649435,
+      "talc_pred_pixels": 10020420,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.14836942962470634,
+      "talc_recall": 0.9126773359853159,
+      "talc_iou": 0.14629271492342658
+    },
+    "selection_score": 0.47185646811436255
+  },
+  {
+    "epoch": 6,
+    "train": {
+      "loss": 1.5779675483703612,
+      "cross_entropy_loss": 0.7574581146240235,
+      "dice_loss": 0.8205094297726949,
+      "mean_iou": 0.41862074136734007,
+      "background_iou": 0.6067971964677175,
+      "ore_iou": 0.6232083201408386,
+      "talc_iou": 0.025856693253722165
+    },
+    "test": {
+      "loss": 1.467847506205241,
+      "cross_entropy_loss": 0.662765383720398,
+      "dice_loss": 0.8050821224848429,
+      "mean_iou": 0.4724994699160258,
+      "background_iou": 0.6231481234232584,
+      "ore_iou": 0.7943503061930338,
+      "talc_iou": 7.5228418402092e-11
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 18290716,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9831127441921902,
+      "background_recall": 0.8279765237828549,
+      "background_iou": 0.8163658187574174,
+      "ore_pred_pixels": 1421066,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7579795730810532,
+      "ore_recall": 0.6918481008105204,
+      "ore_iou": 0.5666683150711164,
+      "talc_pred_pixels": 5191898,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.2846816328055751,
+      "talc_recall": 0.9073451322001019,
+      "talc_iou": 0.2766395337302516
+    },
+    "selection_score": 0.49619320075915396
+  },
+  {
+    "epoch": 7,
+    "train": {
+      "loss": 1.5426531632741292,
+      "cross_entropy_loss": 0.7242011149724324,
+      "dice_loss": 0.8184520681699117,
+      "mean_iou": 0.4286141018072764,
+      "background_iou": 0.63002423842748,
+      "ore_iou": 0.6264335970083873,
+      "talc_iou": 0.029384445542139776
+    },
+    "test": {
+      "loss": 1.4066993395487468,
+      "cross_entropy_loss": 0.6047921975453695,
+      "dice_loss": 0.8019071221351624,
+      "mean_iou": 0.4749835729598999,
+      "background_iou": 0.6103820006052653,
+      "ore_iou": 0.8145686586697897,
+      "talc_iou": 9.092443349160521e-11
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19284238,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9918202627451497,
+      "background_recall": 0.8806826692324258,
+      "background_iou": 0.8743322510443052,
+      "ore_pred_pixels": 1585133,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7657029410150442,
+      "ore_recall": 0.7795877836805295,
+      "ore_iou": 0.6294380573906558,
+      "talc_pred_pixels": 4034309,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3585369886144071,
+      "talc_recall": 0.8879531237530464,
+      "talc_iou": 0.3430180965322292
+    },
+    "selection_score": 0.551896193303112
+  },
+  {
+    "epoch": 8,
+    "train": {
+      "loss": 1.5371371189753213,
+      "cross_entropy_loss": 0.7255964080492655,
+      "dice_loss": 0.8115407268206278,
+      "mean_iou": 0.4433373192946116,
+      "background_iou": 0.623883326848348,
+      "ore_iou": 0.6673964182535808,
+      "talc_iou": 0.038732193912423725
+    },
+    "test": {
+      "loss": 1.3414840698242188,
+      "cross_entropy_loss": 0.5499198337395986,
+      "dice_loss": 0.7915642460187277,
+      "mean_iou": 0.47679267326990765,
+      "background_iou": 0.6130045056343079,
+      "ore_iou": 0.8173734744389852,
+      "talc_iou": 3.056150587229152e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 13883005,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.986076933632164,
+      "background_recall": 0.6303449394918245,
+      "background_iou": 0.624784201872448,
+      "ore_pred_pixels": 1534216,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7637360058818315,
+      "ore_recall": 0.7526079050626854,
+      "ore_iou": 0.610475981579478,
+      "talc_pred_pixels": 9486459,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.15670325460743573,
+      "talc_recall": 0.9125760449854816,
+      "talc_iou": 0.15438561326510794
+    },
+    "selection_score": 0.4694193328256314
+  },
+  {
+    "epoch": 9,
+    "train": {
+      "loss": 1.5514922539393108,
+      "cross_entropy_loss": 0.7377970894177754,
+      "dice_loss": 0.8136951645215352,
+      "mean_iou": 0.42425758838653566,
+      "background_iou": 0.6017204900582631,
+      "ore_iou": 0.6349495212237041,
+      "talc_iou": 0.036102717922767626
+    },
+    "test": {
+      "loss": 1.4186952511469524,
+      "cross_entropy_loss": 0.6151224374771118,
+      "dice_loss": 0.8035728136698405,
+      "mean_iou": 0.43968812624613446,
+      "background_iou": 0.5280375878016154,
+      "ore_iou": 0.791026771068573,
+      "talc_iou": 2.1433701341555533e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 18924623,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.992686617852308,
+      "background_recall": 0.8650145141252509,
+      "background_iou": 0.8595368675962697,
+      "ore_pred_pixels": 1604659,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7763680632458361,
+      "ore_recall": 0.8001831844157079,
+      "ore_iou": 0.6502953928322739,
+      "talc_pred_pixels": 4374398,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3279495830054787,
+      "talc_recall": 0.8806681522679976,
+      "talc_iou": 0.3139963219988855
+    },
+    "selection_score": 0.5439220401461784
+  },
+  {
+    "epoch": 10,
+    "train": {
+      "loss": 1.512056581179301,
+      "cross_entropy_loss": 0.6978645126024882,
+      "dice_loss": 0.8141920646031697,
+      "mean_iou": 0.4307946523030599,
+      "background_iou": 0.6443140069643657,
+      "ore_iou": 0.6235536644856136,
+      "talc_iou": 0.024516259237812057
+    },
+    "test": {
+      "loss": 1.3477518161137898,
+      "cross_entropy_loss": 0.5556349555651346,
+      "dice_loss": 0.7921168605486552,
+      "mean_iou": 0.48672930399576825,
+      "background_iou": 0.6366532643636068,
+      "ore_iou": 0.8235345880190531,
+      "talc_iou": 3.2708763938090374e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19164714,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9932353803975369,
+      "background_recall": 0.8764729443932396,
+      "background_iou": 0.8712719850018201,
+      "ore_pred_pixels": 1596703,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7787904200092315,
+      "ore_recall": 0.7987001100262637,
+      "ore_iou": 0.6510090795960645,
+      "talc_pred_pixels": 4142263,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3472167267022881,
+      "talc_recall": 0.8829278623915726,
+      "talc_iou": 0.3319346775998911
+    },
+    "selection_score": 0.5578844204821929
+  },
+  {
+    "epoch": 11,
+    "train": {
+      "loss": 1.4576074838638307,
+      "cross_entropy_loss": 0.650504450003306,
+      "dice_loss": 0.8071030179659525,
+      "mean_iou": 0.4590978483359019,
+      "background_iou": 0.6520225425561269,
+      "ore_iou": 0.6806488851706187,
+      "talc_iou": 0.04462207380567704
+    },
+    "test": {
+      "loss": 1.3953012625376384,
+      "cross_entropy_loss": 0.5985843141873678,
+      "dice_loss": 0.7967169682184855,
+      "mean_iou": 0.4763917922973633,
+      "background_iou": 0.6179635922114054,
+      "ore_iou": 0.8112117250760397,
+      "talc_iou": 4.105484563421413e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19588866,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9945167831563093,
+      "background_recall": 0.8970267672949882,
+      "background_iou": 0.8926121657702496,
+      "ore_pred_pixels": 1664852,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7736465463596764,
+      "ore_recall": 0.8272889541467312,
+      "ore_iou": 0.6660683461012977,
+      "talc_pred_pixels": 3649962,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.39459150533621995,
+      "talc_recall": 0.8841439682744311,
+      "talc_iou": 0.37519173217515983
+    },
+    "selection_score": 0.578746376325791
+  },
+  {
+    "epoch": 12,
+    "train": {
+      "loss": 1.4889530658721923,
+      "cross_entropy_loss": 0.6830061117808024,
+      "dice_loss": 0.805946966012319,
+      "mean_iou": 0.4472729980945587,
+      "background_iou": 0.642270028591156,
+      "ore_iou": 0.6388980408509572,
+      "talc_iou": 0.06065090067349956
+    },
+    "test": {
+      "loss": 1.3600777387619019,
+      "cross_entropy_loss": 0.5695018370946249,
+      "dice_loss": 0.7905758619308472,
+      "mean_iou": 0.4927573998769124,
+      "background_iou": 0.6557676593462626,
+      "ore_iou": 0.8225045204162598,
+      "talc_iou": 8.406017826256829e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19146750,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9928427539921919,
+      "background_recall": 0.8753052391242597,
+      "background_iou": 0.8698167504901773,
+      "ore_pred_pixels": 1729430,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7449512267047524,
+      "ore_recall": 0.8275034828804143,
+      "ore_iou": 0.6448185426353485,
+      "talc_pred_pixels": 4027500,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.35906219739292367,
+      "talc_recall": 0.8877529972927678,
+      "talc_iou": 0.3434688399792226
+    },
+    "selection_score": 0.5598158571290803
+  },
+  {
+    "epoch": 13,
+    "train": {
+      "loss": 1.4397169987360636,
+      "cross_entropy_loss": 0.6396093289057414,
+      "dice_loss": 0.8001076579093933,
+      "mean_iou": 0.4525324165821075,
+      "background_iou": 0.6735989153385162,
+      "ore_iou": 0.645775192975998,
+      "talc_iou": 0.03822308919182715
+    },
+    "test": {
+      "loss": 1.3082236846288045,
+      "cross_entropy_loss": 0.5227590998013815,
+      "dice_loss": 0.7854646245638529,
+      "mean_iou": 0.5006137092908224,
+      "background_iou": 0.6654345194498698,
+      "ore_iou": 0.8364065090815226,
+      "talc_iou": 5.922083656795252e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19881901,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9859189018192979,
+      "background_recall": 0.9025745644968146,
+      "background_iou": 0.891087768540881,
+      "ore_pred_pixels": 1091058,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.9125830157516832,
+      "ore_recall": 0.6395274972525549,
+      "ore_iou": 0.6026110618188949,
+      "talc_pred_pixels": 3930721,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3965483686071843,
+      "talc_recall": 0.9568752033493557,
+      "talc_iou": 0.3895857754494535
+    },
+    "selection_score": 0.5641600367236439
+  },
+  {
+    "epoch": 14,
+    "train": {
+      "loss": 1.454448906580607,
+      "cross_entropy_loss": 0.656971671183904,
+      "dice_loss": 0.7974772254625956,
+      "mean_iou": 0.4568390885988871,
+      "background_iou": 0.6839749217033386,
+      "ore_iou": 0.6246972401936849,
+      "talc_iou": 0.06184506209928125
+    },
+    "test": {
+      "loss": 1.2794254223505657,
+      "cross_entropy_loss": 0.4984029531478882,
+      "dice_loss": 0.7810224692026774,
+      "mean_iou": 0.49859216809272766,
+      "background_iou": 0.6615833242734274,
+      "ore_iou": 0.8341931502024332,
+      "talc_iou": 1.4468445145669289e-09
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19853828,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9919211045849697,
+      "background_recall": 0.906787190181109,
+      "background_iou": 0.9001392070263896,
+      "ore_pred_pixels": 1218131,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8428305330050709,
+      "ore_recall": 0.6594369198812255,
+      "ore_iou": 0.5872254703566898,
+      "talc_pred_pixels": 3831721,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.40874479117868967,
+      "talc_recall": 0.9614639925842711,
+      "talc_iou": 0.4021563771426077
+    },
+    "selection_score": 0.5625913690402057
+  },
+  {
+    "epoch": 15,
+    "train": {
+      "loss": 1.3663825591405232,
+      "cross_entropy_loss": 0.5707028110822042,
+      "dice_loss": 0.7956797480583191,
+      "mean_iou": 0.4428770701090495,
+      "background_iou": 0.6939652880032857,
+      "ore_iou": 0.5907057007153829,
+      "talc_iou": 0.04396017459869662
+    },
+    "test": {
+      "loss": 1.293939232826233,
+      "cross_entropy_loss": 0.5087201197942098,
+      "dice_loss": 0.7852191130320231,
+      "mean_iou": 0.5031250615914663,
+      "background_iou": 0.662648340066274,
+      "ore_iou": 0.8467268149058024,
+      "talc_iou": 4.091074932525511e-10
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19075469,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9965049352128642,
+      "background_recall": 0.87526319989277,
+      "background_iou": 0.8725845130379294,
+      "ore_pred_pixels": 1441129,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7851059828787014,
+      "ore_recall": 0.7267250775739755,
+      "ore_iou": 0.6061526065431581,
+      "talc_pred_pixels": 4387082,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.35679957657504463,
+      "talc_recall": 0.960919476724556,
+      "talc_iou": 0.35169611006521834
+    },
+    "selection_score": 0.552484849624511
+  },
+  {
+    "epoch": 16,
+    "train": {
+      "loss": 1.4185833056767783,
+      "cross_entropy_loss": 0.6202064613501231,
+      "dice_loss": 0.7983768502871196,
+      "mean_iou": 0.4759907364845276,
+      "background_iou": 0.6798789342244466,
+      "ore_iou": 0.6333187133073807,
+      "talc_iou": 0.11477452251856449
+    },
+    "test": {
+      "loss": 1.2424190441767375,
+      "cross_entropy_loss": 0.46657740076382953,
+      "dice_loss": 0.7758416136105856,
+      "mean_iou": 0.5097286800543467,
+      "background_iou": 0.6781712770462036,
+      "ore_iou": 0.851014773050944,
+      "talc_iou": 2.5505134670922303e-09
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19118834,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9954512916425761,
+      "background_recall": 0.8763254156991619,
+      "background_iou": 0.8728302860267991,
+      "ore_pred_pixels": 1603761,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7317761187608378,
+      "ore_recall": 0.7538013014314976,
+      "ore_iou": 0.5906159225552422,
+      "talc_pred_pixels": 4181085,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.36872055937633413,
+      "talc_recall": 0.9463968028877143,
+      "talc_iou": 0.36117770510422753
+    },
+    "selection_score": 0.5509204056739767
+  },
+  {
+    "epoch": 17,
+    "train": {
+      "loss": 1.4018627246220907,
+      "cross_entropy_loss": 0.6037953813870748,
+      "dice_loss": 0.7980673472086589,
+      "mean_iou": 0.4835592051347097,
+      "background_iou": 0.7074836492538452,
+      "ore_iou": 0.6005375961462657,
+      "talc_iou": 0.1426563260514134
+    },
+    "test": {
+      "loss": 1.2844691276550293,
+      "cross_entropy_loss": 0.4996546506881714,
+      "dice_loss": 0.7848144372304281,
+      "mean_iou": 0.4713080922762553,
+      "background_iou": 0.5985326766967773,
+      "ore_iou": 0.8153915802637736,
+      "talc_iou": 1.0981395052548729e-08
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19653659,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9960954853241323,
+      "background_recall": 0.9014224685372267,
+      "background_iou": 0.8982485848409696,
+      "ore_pred_pixels": 1278901,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8557323827254807,
+      "ore_recall": 0.7029329417862793,
+      "ore_iou": 0.6284563326739041,
+      "talc_pred_pixels": 3971120,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.39501148290658555,
+      "talc_recall": 0.962963099381818,
+      "talc_iou": 0.3891000066477289
+    },
+    "selection_score": 0.5701008517814079
+  },
+  {
+    "epoch": 18,
+    "train": {
+      "loss": 1.3776463826497396,
+      "cross_entropy_loss": 0.5822212815284729,
+      "dice_loss": 0.7954250931739807,
+      "mean_iou": 0.4768304109573364,
+      "background_iou": 0.6776395440101624,
+      "ore_iou": 0.6023865163326263,
+      "talc_iou": 0.150465133082104
+    },
+    "test": {
+      "loss": 1.2486390272776287,
+      "cross_entropy_loss": 0.47001056869824726,
+      "dice_loss": 0.7786284883817037,
+      "mean_iou": 0.49660786986351013,
+      "background_iou": 0.653547465801239,
+      "ore_iou": 0.836276094118754,
+      "talc_iou": 1.0989235447548632e-08
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19216188,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9934198187486509,
+      "background_recall": 0.8789902333149721,
+      "background_iou": 0.8739021770254926,
+      "ore_pred_pixels": 1329835,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8365661905424358,
+      "ore_recall": 0.7145573161042352,
+      "ore_iou": 0.6270258662718312,
+      "talc_pred_pixels": 4357657,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3587019354666969,
+      "talc_recall": 0.959563405096472,
+      "talc_iou": 0.35336056499711654
+    },
+    "selection_score": 0.55940979133133
+  },
+  {
+    "epoch": 19,
+    "train": {
+      "loss": 1.3533599694569907,
+      "cross_entropy_loss": 0.5596552391846975,
+      "dice_loss": 0.7937047322591145,
+      "mean_iou": 0.48863253792126976,
+      "background_iou": 0.6963746746381124,
+      "ore_iou": 0.5960940241813659,
+      "talc_iou": 0.17342889852128585
+    },
+    "test": {
+      "loss": 1.293660322825114,
+      "cross_entropy_loss": 0.5156735380490621,
+      "dice_loss": 0.7779867847760519,
+      "mean_iou": 0.4981881082057953,
+      "background_iou": 0.6682932575543722,
+      "ore_iou": 0.8262710372606913,
+      "talc_iou": 1.4391335530679802e-08
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19084350,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9937378008682507,
+      "background_recall": 0.8732391006846041,
+      "background_iou": 0.8684600888964438,
+      "ore_pred_pixels": 1187846,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8932664672019773,
+      "ore_recall": 0.6815224603234246,
+      "ore_iou": 0.6302031735171207,
+      "talc_pred_pixels": 4631484,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3375283170577724,
+      "talc_recall": 0.9596597850175265,
+      "talc_iou": 0.3328063523841985
+    },
+    "selection_score": 0.550458017812666
+  },
+  {
+    "epoch": 20,
+    "train": {
+      "loss": 1.3605567693710328,
+      "cross_entropy_loss": 0.5688783784707387,
+      "dice_loss": 0.7916783968607585,
+      "mean_iou": 0.488541708389918,
+      "background_iou": 0.6958438634872437,
+      "ore_iou": 0.6310892721017202,
+      "talc_iou": 0.1386919674331745
+    },
+    "test": {
+      "loss": 1.2192933162053425,
+      "cross_entropy_loss": 0.44418850541114807,
+      "dice_loss": 0.775104820728302,
+      "mean_iou": 0.5146628618240356,
+      "background_iou": 0.6828998724619547,
+      "ore_iou": 0.8610887130101522,
+      "talc_iou": 7.2502856311255455e-09
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 18241436,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9978417817544627,
+      "background_recall": 0.8381170955136404,
+      "background_iou": 0.8366005462656968,
+      "ore_pred_pixels": 1488084,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.787454874859215,
+      "ore_recall": 0.7526483700633502,
+      "ore_iou": 0.6255646796420644,
+      "talc_pred_pixels": 5174160,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3045151290257742,
+      "talc_recall": 0.9672431045384506,
+      "talc_iou": 0.3014067856268364
+    },
+    "selection_score": 0.5430063287095908
+  },
+  {
+    "epoch": 21,
+    "train": {
+      "loss": 1.3282918294270833,
+      "cross_entropy_loss": 0.5404765665531158,
+      "dice_loss": 0.787815256913503,
+      "mean_iou": 0.5156023800373077,
+      "background_iou": 0.6922125260035197,
+      "ore_iou": 0.6609436949094136,
+      "talc_iou": 0.19365087216525959
+    },
+    "test": {
+      "loss": 1.2270294030507405,
+      "cross_entropy_loss": 0.45020822683970135,
+      "dice_loss": 0.7768211960792542,
+      "mean_iou": 0.5059848527113596,
+      "background_iou": 0.6687017877896627,
+      "ore_iou": 0.8492527008056641,
+      "talc_iou": 1.2976794305785688e-08
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19288422,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9963983575224556,
+      "background_recall": 0.8849397284965532,
+      "background_iou": 0.8821180469575848,
+      "ore_pred_pixels": 1795545,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7617993422609848,
+      "ore_recall": 0.8785690291161737,
+      "ore_iou": 0.6892292203823338,
+      "talc_pred_pixels": 3819713,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.38190513266310844,
+      "talc_recall": 0.8955155711891564,
+      "talc_iou": 0.3656138038028379
+    },
+    "selection_score": 0.5917877498352015
+  },
+  {
+    "epoch": 22,
+    "train": {
+      "loss": 1.3113189061482748,
+      "cross_entropy_loss": 0.5296431879202524,
+      "dice_loss": 0.7816757321357727,
+      "mean_iou": 0.5535514811674754,
+      "background_iou": 0.705827534198761,
+      "ore_iou": 0.6774072150389353,
+      "talc_iou": 0.277419650554657
+    },
+    "test": {
+      "loss": 1.2125344276428223,
+      "cross_entropy_loss": 0.4417028824488322,
+      "dice_loss": 0.7708314855893453,
+      "mean_iou": 0.5585547486941019,
+      "background_iou": 0.6961715618769327,
+      "ore_iou": 0.8544926444689432,
+      "talc_iou": 0.12500002351394635
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 16119800,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9983933423491607,
+      "background_recall": 0.7410462537910707,
+      "background_iou": 0.7401635912329213,
+      "ore_pred_pixels": 1548114,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7607107745295243,
+      "ore_recall": 0.7564173958395556,
+      "ore_iou": 0.6110297673279553,
+      "talc_pred_pixels": 7235766,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.2212405707978948,
+      "talc_recall": 0.9827344886646163,
+      "talc_iou": 0.22038395124596447
+    },
+    "selection_score": 0.5034640163233566
+  },
+  {
+    "epoch": 23,
+    "train": {
+      "loss": 1.4123491366704306,
+      "cross_entropy_loss": 0.6269458572069804,
+      "dice_loss": 0.7854032834370931,
+      "mean_iou": 0.5199443479379018,
+      "background_iou": 0.698809419075648,
+      "ore_iou": 0.6407565156618754,
+      "talc_iou": 0.22026705238192032
+    },
+    "test": {
+      "loss": 1.2375544309616089,
+      "cross_entropy_loss": 0.46337272723515827,
+      "dice_loss": 0.7741817235946655,
+      "mean_iou": 0.5632020036379496,
+      "background_iou": 0.7079997857411703,
+      "ore_iou": 0.8566062053044637,
+      "talc_iou": 0.12500001561559002
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 21617015,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9712244266842578,
+      "background_recall": 0.9667169004018775,
+      "background_iou": 0.9397991508537814,
+      "ore_pred_pixels": 1376943,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8251677810918825,
+      "ore_recall": 0.7297888561957375,
+      "ore_iou": 0.632057675779566,
+      "talc_pred_pixels": 1909722,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.567922451540067,
+      "talc_recall": 0.6658035445711094,
+      "talc_iou": 0.44194044459149884
+    },
+    "selection_score": 0.6009204892093187
+  },
+  {
+    "epoch": 24,
+    "train": {
+      "loss": 1.3233428557713827,
+      "cross_entropy_loss": 0.534770812590917,
+      "dice_loss": 0.7885720451672872,
+      "mean_iou": 0.5453604360421499,
+      "background_iou": 0.6923843383789062,
+      "ore_iou": 0.6339922507603963,
+      "talc_iou": 0.309704688128204
+    },
+    "test": {
+      "loss": 1.240392525990804,
+      "cross_entropy_loss": 0.4663870831330617,
+      "dice_loss": 0.774005393187205,
+      "mean_iou": 0.5823918978373209,
+      "background_iou": 0.7005281249682108,
+      "ore_iou": 0.8531951308250427,
+      "talc_iou": 0.19345239798227945
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 18538848,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9965695279447785,
+      "background_recall": 0.8506958966256679,
+      "background_iou": 0.8482120483865918,
+      "ore_pred_pixels": 1740771,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7570162876104898,
+      "ore_recall": 0.8464199072388032,
+      "ore_iou": 0.6655918540517607,
+      "talc_pred_pixels": 4624061,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.31106250544705183,
+      "talc_recall": 0.8829947758399479,
+      "talc_iou": 0.29874846796003623
+    },
+    "selection_score": 0.5563751549697273
+  },
+  {
+    "epoch": 25,
+    "train": {
+      "loss": 1.3489384253819783,
+      "cross_entropy_loss": 0.5586123704910279,
+      "dice_loss": 0.7903260588645935,
+      "mean_iou": 0.5513031661510468,
+      "background_iou": 0.7026486277580262,
+      "ore_iou": 0.6341237425804138,
+      "talc_iou": 0.31713708838242843
+    },
+    "test": {
+      "loss": 1.2165110508600872,
+      "cross_entropy_loss": 0.44258783260981244,
+      "dice_loss": 0.7739232182502747,
+      "mean_iou": 0.5243677099545797,
+      "background_iou": 0.6960534453392029,
+      "ore_iou": 0.856216311454773,
+      "talc_iou": 0.020833358327300527
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19672697,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9933367549960231,
+      "background_recall": 0.8997967060121028,
+      "background_iou": 0.8943983111638654,
+      "ore_pred_pixels": 1634589,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7807736378991905,
+      "ore_recall": 0.8197335604511783,
+      "ore_iou": 0.6663603526648796,
+      "talc_pred_pixels": 3596394,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4066489934083974,
+      "talc_recall": 0.8977881728945284,
+      "talc_iou": 0.3886556464253311
+    },
+    "selection_score": 0.5932496619270389
+  },
+  {
+    "epoch": 26,
+    "train": {
+      "loss": 1.2922051032384236,
+      "cross_entropy_loss": 0.5086043039957683,
+      "dice_loss": 0.7836007992426555,
+      "mean_iou": 0.5926273763179779,
+      "background_iou": 0.7238600492477417,
+      "ore_iou": 0.7351579467455546,
+      "talc_iou": 0.31886408825715384
+    },
+    "test": {
+      "loss": 1.2067222992579143,
+      "cross_entropy_loss": 0.4348006248474121,
+      "dice_loss": 0.771921694278717,
+      "mean_iou": 0.5919240713119507,
+      "background_iou": 0.7059618830680847,
+      "ore_iou": 0.85552450021108,
+      "talc_iou": 0.2142857313156128
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19472622,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9961058659691541,
+      "background_recall": 0.8931284458759169,
+      "background_iou": 0.890020885911751,
+      "ore_pred_pixels": 1766838,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7576953857682481,
+      "ore_recall": 0.8598652065866744,
+      "ore_iou": 0.6744158983261579,
+      "talc_pred_pixels": 3664220,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3931259585941892,
+      "talc_recall": 0.8843011227953861,
+      "talc_iou": 0.37389460351079373
+    },
+    "selection_score": 0.5904291007769966
+  },
+  {
+    "epoch": 27,
+    "train": {
+      "loss": 1.3302635510762533,
+      "cross_entropy_loss": 0.546718939145406,
+      "dice_loss": 0.7835446198781332,
+      "mean_iou": 0.5647306025028229,
+      "background_iou": 0.7194172739982605,
+      "ore_iou": 0.6729353427886963,
+      "talc_iou": 0.30183913906415305
+    },
+    "test": {
+      "loss": 1.1525591214497883,
+      "cross_entropy_loss": 0.38849928975105286,
+      "dice_loss": 0.7640598813692728,
+      "mean_iou": 0.6333149274190267,
+      "background_iou": 0.7136239608128866,
+      "ore_iou": 0.8648921648661295,
+      "talc_iou": 0.3214285920063655
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19553518,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9954924223866007,
+      "background_recall": 0.8962864992504539,
+      "background_iou": 0.892663735600947,
+      "ore_pred_pixels": 1571209,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7693260412841322,
+      "ore_recall": 0.7763961870407945,
+      "ore_iou": 0.6297858949283555,
+      "talc_pred_pixels": 3778953,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4004913530282065,
+      "talc_recall": 0.9290766558009048,
+      "talc_iou": 0.38861056083153483
+    },
+    "selection_score": 0.5803370152771821
+  },
+  {
+    "epoch": 28,
+    "train": {
+      "loss": 1.3170344432195027,
+      "cross_entropy_loss": 0.5258227288722992,
+      "dice_loss": 0.7912117203076681,
+      "mean_iou": 0.5286630948384603,
+      "background_iou": 0.6933573961257935,
+      "ore_iou": 0.634821492433548,
+      "talc_iou": 0.257810352985599
+    },
+    "test": {
+      "loss": 1.2057098944981892,
+      "cross_entropy_loss": 0.43621307611465454,
+      "dice_loss": 0.7694968382517496,
+      "mean_iou": 0.6561923027038574,
+      "background_iou": 0.7068495154380798,
+      "ore_iou": 0.851013163725535,
+      "talc_iou": 0.4107142984867096
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19793439,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9957783990947707,
+      "background_recall": 0.9075445409801698,
+      "background_iou": 0.9040661162149954,
+      "ore_pred_pixels": 1409449,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8029116342627509,
+      "ore_recall": 0.7268689531318947,
+      "ore_iou": 0.6168152932898091,
+      "talc_pred_pixels": 3700792,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4223768858125504,
+      "talc_recall": 0.9595812077570489,
+      "talc_iou": 0.4149937092358082
+    },
+    "selection_score": 0.582926233755354
+  },
+  {
+    "epoch": 29,
+    "train": {
+      "loss": 1.2745600064595541,
+      "cross_entropy_loss": 0.49111327131589255,
+      "dice_loss": 0.783446729183197,
+      "mean_iou": 0.5640146017074585,
+      "background_iou": 0.7300481716791789,
+      "ore_iou": 0.6577880601088206,
+      "talc_iou": 0.30420751477785984
+    },
+    "test": {
+      "loss": 1.1730376084645588,
+      "cross_entropy_loss": 0.40430264671643573,
+      "dice_loss": 0.7687349319458008,
+      "mean_iou": 0.5800281564394633,
+      "background_iou": 0.6761953830718994,
+      "ore_iou": 0.8496032555898031,
+      "talc_iou": 0.2142857238650322
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19786032,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9960032916150141,
+      "background_recall": 0.9074098128406968,
+      "background_iou": 0.9041177346050501,
+      "ore_pred_pixels": 1345931,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8232405673099141,
+      "ore_recall": 0.7116862279618293,
+      "ore_iou": 0.6173505006387874,
+      "talc_pred_pixels": 3771717,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.41215950189263934,
+      "talc_recall": 0.9543140757656678,
+      "talc_iou": 0.4041844052397496
+    },
+    "selection_score": 0.5785346134693754
+  },
+  {
+    "epoch": 30,
+    "train": {
+      "loss": 1.2428952217102052,
+      "cross_entropy_loss": 0.4633720258871714,
+      "dice_loss": 0.7795231978098551,
+      "mean_iou": 0.5579786042372386,
+      "background_iou": 0.7430484493573507,
+      "ore_iou": 0.5991305371125539,
+      "talc_iou": 0.3317567820350329
+    },
+    "test": {
+      "loss": 1.170023997624715,
+      "cross_entropy_loss": 0.40277785062789917,
+      "dice_loss": 0.767246146996816,
+      "mean_iou": 0.6265283823013306,
+      "background_iou": 0.70186980565389,
+      "ore_iou": 0.8562867244084676,
+      "talc_iou": 0.3214285870393117
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19568363,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9961892060158533,
+      "background_recall": 0.8975947803942838,
+      "background_iou": 0.8945233150302996,
+      "ore_pred_pixels": 1313025,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8342537270805963,
+      "ore_recall": 0.7035746010825351,
+      "ore_iou": 0.6172879579381583,
+      "talc_pred_pixels": 4022292,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.38931136774754294,
+      "talc_recall": 0.9612970159057564,
+      "talc_iou": 0.3833034133283464
+    },
+    "selection_score": 0.5714938933882954
+  },
+  {
+    "epoch": 31,
+    "train": {
+      "loss": 1.260778578122457,
+      "cross_entropy_loss": 0.4831384281317393,
+      "dice_loss": 0.7776401519775391,
+      "mean_iou": 0.579370109240214,
+      "background_iou": 0.7127321640650431,
+      "ore_iou": 0.6628247976303101,
+      "talc_iou": 0.3625533215535386
+    },
+    "test": {
+      "loss": 1.1542089382807414,
+      "cross_entropy_loss": 0.39115022619565326,
+      "dice_loss": 0.7630587617556254,
+      "mean_iou": 0.6766312519709269,
+      "background_iou": 0.7283829649289449,
+      "ore_iou": 0.8729393283526102,
+      "talc_iou": 0.4285714328289032
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19652794,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9958983440217203,
+      "background_recall": 0.9012043986573416,
+      "background_iou": 0.8978718088624597,
+      "ore_pred_pixels": 1416521,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8008649359945952,
+      "ore_recall": 0.7286539092723301,
+      "ore_iou": 0.6168865349269704,
+      "talc_pred_pixels": 3834365,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4079416018036885,
+      "talc_recall": 0.9602368367741579,
+      "talc_iou": 0.40116482155799565
+    },
+    "selection_score": 0.5818084082645085
+  },
+  {
+    "epoch": 32,
+    "train": {
+      "loss": 1.2753854274749756,
+      "cross_entropy_loss": 0.4987301011880239,
+      "dice_loss": 0.7766553401947022,
+      "mean_iou": 0.5739665528138479,
+      "background_iou": 0.7206647674242656,
+      "ore_iou": 0.6377435644467672,
+      "talc_iou": 0.36349127292633054
+    },
+    "test": {
+      "loss": 1.140121340751648,
+      "cross_entropy_loss": 0.37665805220603943,
+      "dice_loss": 0.7634632786115011,
+      "mean_iou": 0.6778345108032227,
+      "background_iou": 0.6874723633130392,
+      "ore_iou": 0.8549596667289734,
+      "talc_iou": 0.4910714328289032
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19954011,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9946658343528025,
+      "background_recall": 0.913884683302998,
+      "background_iou": 0.9094276196562475,
+      "ore_pred_pixels": 1315986,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8629369917309151,
+      "ore_recall": 0.7294060444434167,
+      "ore_iou": 0.6536752406356164,
+      "talc_pred_pixels": 3633683,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4256865554865408,
+      "talc_recall": 0.9495632209310177,
+      "talc_iou": 0.4162743151419476
+    },
+    "selection_score": 0.5989717556568204
+  },
+  {
+    "epoch": 33,
+    "train": {
+      "loss": 1.2161722342173258,
+      "cross_entropy_loss": 0.4418618897596995,
+      "dice_loss": 0.7743103464444479,
+      "mean_iou": 0.5877128581206004,
+      "background_iou": 0.7461609244346619,
+      "ore_iou": 0.6594239592552185,
+      "talc_iou": 0.3575536280870438
+    },
+    "test": {
+      "loss": 1.1151643594106038,
+      "cross_entropy_loss": 0.35720162590344745,
+      "dice_loss": 0.757962703704834,
+      "mean_iou": 0.742047905921936,
+      "background_iou": 0.722062905629476,
+      "ore_iou": 0.8761046131451925,
+      "talc_iou": 0.6279761989911398
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19501575,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9978379182194259,
+      "background_recall": 0.8960117017328958,
+      "background_iou": 0.8942755121984756,
+      "ore_pred_pixels": 1547255,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7856636430323379,
+      "ore_recall": 0.7807959529860923,
+      "ore_iou": 0.6436855253863579,
+      "talc_pred_pixels": 3854850,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.41325317457229205,
+      "talc_recall": 0.9779363646967102,
+      "talc_iou": 0.4094357676883698
+    },
+    "selection_score": 0.5964694398589296
+  },
+  {
+    "epoch": 34,
+    "train": {
+      "loss": 1.2879348595937092,
+      "cross_entropy_loss": 0.5115159908930461,
+      "dice_loss": 0.7764188726743062,
+      "mean_iou": 0.6043147921562195,
+      "background_iou": 0.6860201239585877,
+      "ore_iou": 0.7000852008660634,
+      "talc_iou": 0.42683899799982705
+    },
+    "test": {
+      "loss": 1.1123759746551514,
+      "cross_entropy_loss": 0.35321563482284546,
+      "dice_loss": 0.7591603398323059,
+      "mean_iou": 0.7346635063489279,
+      "background_iou": 0.7203342517217001,
+      "ore_iou": 0.8765133420626322,
+      "talc_iou": 0.6071428656578064
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19820758,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9973212931614421,
+      "background_recall": 0.9102052605766999,
+      "background_iou": 0.9079854887048093,
+      "ore_pred_pixels": 1588217,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.781707411518703,
+      "ore_recall": 0.7974309220689049,
+      "ore_iou": 0.6521973926203918,
+      "talc_pred_pixels": 3494705,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.44932204578068824,
+      "talc_recall": 0.9639514539862613,
+      "talc_iou": 0.44189679427774936
+    },
+    "selection_score": 0.6129403431717829
+  },
+  {
+    "epoch": 35,
+    "train": {
+      "loss": 1.2516300121943156,
+      "cross_entropy_loss": 0.4733657797177633,
+      "dice_loss": 0.7782642205556234,
+      "mean_iou": 0.6201531191666921,
+      "background_iou": 0.7375794529914856,
+      "ore_iou": 0.6484079619248708,
+      "talc_iou": 0.47447188769777615
+    },
+    "test": {
+      "loss": 1.1387703816095989,
+      "cross_entropy_loss": 0.37700073917706806,
+      "dice_loss": 0.7617696523666382,
+      "mean_iou": 0.7058131098747253,
+      "background_iou": 0.7153759400049845,
+      "ore_iou": 0.8574204842249552,
+      "talc_iou": 0.5446428855260214
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19617608,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9955893705287617,
+      "background_recall": 0.8993118044274171,
+      "background_iou": 0.8957430712745883,
+      "ore_pred_pixels": 1767373,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7822010407537062,
+      "ore_recall": 0.8879440632384461,
+      "ore_iou": 0.7119257938247007,
+      "talc_pred_pixels": 3518699,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.41993589107792395,
+      "talc_recall": 0.907093439412635,
+      "talc_iou": 0.40261893531979615
+    },
+    "selection_score": 0.6173019885027898
+  },
+  {
+    "epoch": 36,
+    "train": {
+      "loss": 1.2665611823399863,
+      "cross_entropy_loss": 0.48690118988355,
+      "dice_loss": 0.7796599944432576,
+      "mean_iou": 0.5969337483247121,
+      "background_iou": 0.7087995310624441,
+      "ore_iou": 0.6711929420630137,
+      "talc_iou": 0.4108086844285329
+    },
+    "test": {
+      "loss": 1.123739759127299,
+      "cross_entropy_loss": 0.3639540175596873,
+      "dice_loss": 0.7597857316335043,
+      "mean_iou": 0.6946149269739786,
+      "background_iou": 0.7176982959111532,
+      "ore_iou": 0.8691226243972778,
+      "talc_iou": 0.4970238208770752
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19590890,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.994733827814867,
+      "background_recall": 0.8973152402251995,
+      "background_iou": 0.893072757783817,
+      "ore_pred_pixels": 1682239,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7937130217525572,
+      "ore_recall": 0.857610727978208,
+      "ore_iou": 0.7012960069330462,
+      "talc_pred_pixels": 3630551,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4124723767824774,
+      "talc_recall": 0.9192937868714587,
+      "talc_iou": 0.39805806403423266
+    },
+    "selection_score": 0.6135661532663671
+  },
+  {
+    "epoch": 37,
+    "train": {
+      "loss": 1.2321300586064656,
+      "cross_entropy_loss": 0.4541171729564667,
+      "dice_loss": 0.7780128836631774,
+      "mean_iou": 0.6134668568770091,
+      "background_iou": 0.7229306976000468,
+      "ore_iou": 0.7331250607967377,
+      "talc_iou": 0.38434476944969653
+    },
+    "test": {
+      "loss": 1.1549688577651978,
+      "cross_entropy_loss": 0.3889740506807963,
+      "dice_loss": 0.7659947872161865,
+      "mean_iou": 0.6656250357627869,
+      "background_iou": 0.7195414900779724,
+      "ore_iou": 0.8606668512026469,
+      "talc_iou": 0.4166666716337204
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20044882,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9938067482761934,
+      "background_recall": 0.9172536235123903,
+      "background_iou": 0.9120402334003848,
+      "ore_pred_pixels": 1338778,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8795207271108428,
+      "ore_recall": 0.7562992123455505,
+      "ore_iou": 0.6853019096773593,
+      "talc_pred_pixels": 3520020,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4388520519769774,
+      "talc_recall": 0.948309668072463,
+      "talc_iou": 0.42859957017076084
+    },
+    "selection_score": 0.6176939621797775
+  },
+  {
+    "epoch": 38,
+    "train": {
+      "loss": 1.214579184850057,
+      "cross_entropy_loss": 0.43982120951016745,
+      "dice_loss": 0.774757965405782,
+      "mean_iou": 0.6204100966453552,
+      "background_iou": 0.7425942262013753,
+      "ore_iou": 0.6723726332187653,
+      "talc_iou": 0.4462633778651555
+    },
+    "test": {
+      "loss": 1.1176897287368774,
+      "cross_entropy_loss": 0.35694823662439984,
+      "dice_loss": 0.7607415119806925,
+      "mean_iou": 0.6789236466089884,
+      "background_iou": 0.7302128473917643,
+      "ore_iou": 0.8720341523488363,
+      "talc_iou": 0.4345238308111827
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19621169,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9968006493394965,
+      "background_recall": 0.900569389849593,
+      "background_iou": 0.8979738100686373,
+      "ore_pred_pixels": 1363797,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8484847818260343,
+      "ore_recall": 0.743246359273968,
+      "ore_iou": 0.6561591846385985,
+      "talc_pred_pixels": 3918714,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4045059169921561,
+      "talc_recall": 0.9730952687894805,
+      "talc_iou": 0.40003194919623547
+    },
+    "selection_score": 0.5968832840037008
+  },
+  {
+    "epoch": 39,
+    "train": {
+      "loss": 1.2363079150517782,
+      "cross_entropy_loss": 0.46104655067125955,
+      "dice_loss": 0.7752613663673401,
+      "mean_iou": 0.6201041340827942,
+      "background_iou": 0.7227953672409058,
+      "ore_iou": 0.7262386441230774,
+      "talc_iou": 0.41127832780281703
+    },
+    "test": {
+      "loss": 1.1024359067281086,
+      "cross_entropy_loss": 0.3466184735298157,
+      "dice_loss": 0.7558174331982931,
+      "mean_iou": 0.7278497815132141,
+      "background_iou": 0.736902912457784,
+      "ore_iou": 0.8811702529589335,
+      "talc_iou": 0.5654762089252472
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 18736427,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9961571648639306,
+      "background_recall": 0.8594064898535575,
+      "background_iou": 0.8565667162770121,
+      "ore_pred_pixels": 1436079,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8007324109606784,
+      "ore_recall": 0.7385922418959202,
+      "ore_iou": 0.6239145119678362,
+      "talc_pred_pixels": 4731174,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.33063675104741447,
+      "talc_recall": 0.9603000669134484,
+      "talc_iou": 0.3261782493342152
+    },
+    "selection_score": 0.5562711551126073
+  },
+  {
+    "epoch": 40,
+    "train": {
+      "loss": 1.2602713743845622,
+      "cross_entropy_loss": 0.4839036683241526,
+      "dice_loss": 0.776367700099945,
+      "mean_iou": 0.6026721318562825,
+      "background_iou": 0.7315880417823791,
+      "ore_iou": 0.6594914178053538,
+      "talc_iou": 0.4169368967009818
+    },
+    "test": {
+      "loss": 1.0919841925303142,
+      "cross_entropy_loss": 0.3361186434825261,
+      "dice_loss": 0.7558655341466268,
+      "mean_iou": 0.6846975684165955,
+      "background_iou": 0.7252552310625712,
+      "ore_iou": 0.8734802007675171,
+      "talc_iou": 0.4553571591774623
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19281094,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9959886612243061,
+      "background_recall": 0.884239796012572,
+      "background_iou": 0.8811019533151225,
+      "ore_pred_pixels": 1740255,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7691780802238752,
+      "ore_recall": 0.8597630806326156,
+      "ore_iou": 0.683433490419128,
+      "talc_pred_pixels": 3882331,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.37632649045122635,
+      "talc_recall": 0.8969004954050719,
+      "talc_iou": 0.3607219950635475
+    },
+    "selection_score": 0.5923582343465736
+  },
+  {
+    "epoch": 41,
+    "train": {
+      "loss": 1.2353884299596152,
+      "cross_entropy_loss": 0.4671888550122579,
+      "dice_loss": 0.7681995948155721,
+      "mean_iou": 0.6454126934210459,
+      "background_iou": 0.7451226393381755,
+      "ore_iou": 0.6930615325768789,
+      "talc_iou": 0.49805383930603664
+    },
+    "test": {
+      "loss": 1.0938926935195923,
+      "cross_entropy_loss": 0.34055323402086896,
+      "dice_loss": 0.753339429696401,
+      "mean_iou": 0.7773910363515218,
+      "background_iou": 0.7351926366488138,
+      "ore_iou": 0.8797184626261393,
+      "talc_iou": 0.717261920372645
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19733428,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9952213067085962,
+      "background_recall": 0.9042867998332612,
+      "background_iou": 0.9003773087691795,
+      "ore_pred_pixels": 1603241,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8153496573503297,
+      "ore_recall": 0.8396179333175328,
+      "ore_iou": 0.70547454315844,
+      "talc_pred_pixels": 3567011,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.44020609972887664,
+      "talc_recall": 0.9639342652105318,
+      "talc_iou": 0.43307322242144475
+    },
+    "selection_score": 0.6313627987571818
+  },
+  {
+    "epoch": 42,
+    "train": {
+      "loss": 1.2426427284876504,
+      "cross_entropy_loss": 0.46486066778500873,
+      "dice_loss": 0.7777820746103923,
+      "mean_iou": 0.650445302327474,
+      "background_iou": 0.7258834719657898,
+      "ore_iou": 0.6857790847619375,
+      "talc_iou": 0.5396733115116755
+    },
+    "test": {
+      "loss": 1.1034449338912964,
+      "cross_entropy_loss": 0.34665486216545105,
+      "dice_loss": 0.7567900617917379,
+      "mean_iou": 0.7833247383435568,
+      "background_iou": 0.7534255782763163,
+      "ore_iou": 0.8792866667111715,
+      "talc_iou": 0.7172619104385376
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 14710389,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9956706107499944,
+      "background_recall": 0.6744097436348206,
+      "background_iou": 0.6724378343893367,
+      "ore_pred_pixels": 1670062,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.6842979482198864,
+      "ore_recall": 0.7340351120591483,
+      "ore_iou": 0.5483404929508195,
+      "talc_pred_pixels": 8523229,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.18677123423528805,
+      "talc_recall": 0.97723960539482,
+      "talc_iou": 0.18596229924050603
+    },
+    "selection_score": 0.46957845021876454
+  },
+  {
+    "epoch": 43,
+    "train": {
+      "loss": 1.2201119343439737,
+      "cross_entropy_loss": 0.449430243174235,
+      "dice_loss": 0.7706816951433818,
+      "mean_iou": 0.6563361724217732,
+      "background_iou": 0.7371598243713379,
+      "ore_iou": 0.6822220325469971,
+      "talc_iou": 0.5496266305446624
+    },
+    "test": {
+      "loss": 1.0661664009094238,
+      "cross_entropy_loss": 0.3146373728911082,
+      "dice_loss": 0.7515289783477783,
+      "mean_iou": 0.8353625734647115,
+      "background_iou": 0.7499615748723348,
+      "ore_iou": 0.8870784044265747,
+      "talc_iou": 0.8690476417541504
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20321518,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9905280698026594,
+      "background_recall": 0.9268446002080597,
+      "background_iou": 0.9187021825769286,
+      "ore_pred_pixels": 1246037,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.895123499542951,
+      "ore_recall": 0.7163955832772925,
+      "ore_iou": 0.660920572108835,
+      "talc_pred_pixels": 3336125,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4581947618869197,
+      "talc_recall": 0.9383813084341639,
+      "talc_iou": 0.44481158155099665
+    },
+    "selection_score": 0.6197085423492477
+  },
+  {
+    "epoch": 44,
+    "train": {
+      "loss": 1.1752259174982707,
+      "cross_entropy_loss": 0.40512452721595765,
+      "dice_loss": 0.7701014041900635,
+      "mean_iou": 0.6708667437235515,
+      "background_iou": 0.7381306290626526,
+      "ore_iou": 0.7674123406410217,
+      "talc_iou": 0.5070571929216385
+    },
+    "test": {
+      "loss": 1.0876097679138184,
+      "cross_entropy_loss": 0.3325193126996358,
+      "dice_loss": 0.7550904552141825,
+      "mean_iou": 0.8399815956751505,
+      "background_iou": 0.748986005783081,
+      "ore_iou": 0.8781015475591024,
+      "talc_iou": 0.8928571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19903766,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.992686157986383,
+      "background_recall": 0.90976916686209,
+      "background_iou": 0.9037116490028853,
+      "ore_pred_pixels": 1371313,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8936041589338102,
+      "ore_recall": 0.7870834433274819,
+      "ore_iou": 0.7196434349716321,
+      "talc_pred_pixels": 3628601,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4235527686841292,
+      "talc_recall": 0.9434820776318779,
+      "talc_iou": 0.41307217227448734
+    },
+    "selection_score": 0.6287065524102683
+  },
+  {
+    "epoch": 45,
+    "train": {
+      "loss": 1.1808380524317423,
+      "cross_entropy_loss": 0.4061945060888926,
+      "dice_loss": 0.7746435403823853,
+      "mean_iou": 0.617868443330129,
+      "background_iou": 0.7423633853594462,
+      "ore_iou": 0.6953401704629262,
+      "talc_iou": 0.41590172251475993
+    },
+    "test": {
+      "loss": 1.0700339476267497,
+      "cross_entropy_loss": 0.31853241225083667,
+      "dice_loss": 0.7515015403429667,
+      "mean_iou": 0.7684490084648132,
+      "background_iou": 0.7422811587651571,
+      "ore_iou": 0.8874706824620565,
+      "talc_iou": 0.675595243771871
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19814082,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9957976857065596,
+      "background_recall": 0.9085086345496454,
+      "background_iou": 0.9050387609344384,
+      "ore_pred_pixels": 1357532,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8538855805977318,
+      "ore_recall": 0.744541239295241,
+      "ore_iou": 0.6604033827544245,
+      "talc_pred_pixels": 3732066,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4180837102023383,
+      "talc_recall": 0.9578543496810868,
+      "talc_iou": 0.41053168873266116
+    },
+    "selection_score": 0.6058681650872456
+  },
+  {
+    "epoch": 46,
+    "train": {
+      "loss": 1.2186656236648559,
+      "cross_entropy_loss": 0.4476123332977295,
+      "dice_loss": 0.7710532943407694,
+      "mean_iou": 0.6350868542989095,
+      "background_iou": 0.7420105814933777,
+      "ore_iou": 0.7032284190257391,
+      "talc_iou": 0.4600215216477712
+    },
+    "test": {
+      "loss": 1.0601354440053303,
+      "cross_entropy_loss": 0.3094135522842407,
+      "dice_loss": 0.7507218917210897,
+      "mean_iou": 0.762859066327413,
+      "background_iou": 0.7375067075093588,
+      "ore_iou": 0.875475287437439,
+      "talc_iou": 0.675595243771871
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19785903,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9978426054145721,
+      "background_recall": 0.9090795945392097,
+      "background_iou": 0.9072963183971688,
+      "ore_pred_pixels": 1456438,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8164988828909985,
+      "ore_recall": 0.7638122141356452,
+      "ore_iou": 0.6519058919754254,
+      "talc_pred_pixels": 3661339,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4346472697556823,
+      "talc_recall": 0.9769308213165374,
+      "talc_iou": 0.43023148931660554
+    },
+    "selection_score": 0.6079500100043002
+  },
+  {
+    "epoch": 47,
+    "train": {
+      "loss": 1.1997490564982096,
+      "cross_entropy_loss": 0.4264857033888499,
+      "dice_loss": 0.7732633550961813,
+      "mean_iou": 0.5922183096408844,
+      "background_iou": 0.7508377393086751,
+      "ore_iou": 0.6878236711025238,
+      "talc_iou": 0.3379934740229252
+    },
+    "test": {
+      "loss": 1.0612006584803264,
+      "cross_entropy_loss": 0.3097963035106659,
+      "dice_loss": 0.7514043052991232,
+      "mean_iou": 0.6928492387135824,
+      "background_iou": 0.7355984449386597,
+      "ore_iou": 0.8846158583958944,
+      "talc_iou": 0.4583333432674408
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19786513,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9962570464032748,
+      "background_recall": 0.9076630612231649,
+      "background_iou": 0.9045783544311872,
+      "ore_pred_pixels": 1454194,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8106373702545878,
+      "ore_recall": 0.7571605387882724,
+      "ore_iou": 0.6433677114356992,
+      "talc_pred_pixels": 3662973,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4256706232887876,
+      "talc_recall": 0.9571815318882484,
+      "talc_iou": 0.41771650347480915
+    },
+    "selection_score": 0.6013568576433823
+  },
+  {
+    "epoch": 48,
+    "train": {
+      "loss": 1.1848284165064493,
+      "cross_entropy_loss": 0.416997367143631,
+      "dice_loss": 0.767831047375997,
+      "mean_iou": 0.6488260606924693,
+      "background_iou": 0.7627960006395976,
+      "ore_iou": 0.755332887172699,
+      "talc_iou": 0.42834923217693965
+    },
+    "test": {
+      "loss": 1.0773278872172039,
+      "cross_entropy_loss": 0.3220403293768565,
+      "dice_loss": 0.7552875479062399,
+      "mean_iou": 0.7489429116249084,
+      "background_iou": 0.7199061512947083,
+      "ore_iou": 0.8691843350728353,
+      "talc_iou": 0.6577381094296774
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19375343,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9948991870750366,
+      "background_recall": 0.8875901339771429,
+      "background_iou": 0.8835693252292436,
+      "ore_pred_pixels": 1727844,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7713641972307685,
+      "ore_recall": 0.8560576427145978,
+      "ore_iou": 0.6828035377991627,
+      "talc_pred_pixels": 3800493,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.37795912267171655,
+      "talc_recall": 0.8818032253509887,
+      "talc_iou": 0.35973440733758205
+    },
+    "selection_score": 0.5908520450692649
+  },
+  {
+    "epoch": 49,
+    "train": {
+      "loss": 1.193965220451355,
+      "cross_entropy_loss": 0.4225311597188314,
+      "dice_loss": 0.7714340726534525,
+      "mean_iou": 0.6800069332122802,
+      "background_iou": 0.7367037256558736,
+      "ore_iou": 0.7212945997714997,
+      "talc_iou": 0.5820224444071452
+    },
+    "test": {
+      "loss": 1.0734981695810955,
+      "cross_entropy_loss": 0.32386481761932373,
+      "dice_loss": 0.7496333320935568,
+      "mean_iou": 0.8570128480593363,
+      "background_iou": 0.7381187876065572,
+      "ore_iou": 0.8805387218793234,
+      "talc_iou": 0.9523809750874838
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20098182,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9925001176723347,
+      "background_recall": 0.9184834437028155,
+      "background_iou": 0.9121525837363742,
+      "ore_pred_pixels": 1747324,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7757931557055245,
+      "ore_recall": 0.870679638589737,
+      "ore_iou": 0.6956369572368337,
+      "talc_pred_pixels": 3058174,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4625564143832235,
+      "talc_recall": 0.8683879997790015,
+      "talc_iou": 0.4322534671569649
+    },
+    "selection_score": 0.6272639141333842
+  },
+  {
+    "epoch": 50,
+    "train": {
+      "loss": 1.1935580809911093,
+      "cross_entropy_loss": 0.4236455162366231,
+      "dice_loss": 0.7699125647544861,
+      "mean_iou": 0.6656991223494212,
+      "background_iou": 0.7620245536168416,
+      "ore_iou": 0.6767876664797465,
+      "talc_iou": 0.558285062511762
+    },
+    "test": {
+      "loss": 1.062679688135783,
+      "cross_entropy_loss": 0.31208908557891846,
+      "dice_loss": 0.7505905628204346,
+      "mean_iou": 0.7914549112319946,
+      "background_iou": 0.7574832240740458,
+      "ore_iou": 0.8787862658500671,
+      "talc_iou": 0.738095243771871
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19758715,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9938106298916706,
+      "background_recall": 0.9041621555839265,
+      "background_iou": 0.8990992853834069,
+      "ore_pred_pixels": 1730024,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7801267496867096,
+      "ore_recall": 0.8668746439240517,
+      "ore_iou": 0.6966639429263708,
+      "talc_pred_pixels": 3414941,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4218190006796603,
+      "talc_recall": 0.8842931422923688,
+      "talc_iou": 0.399755066292504
+    },
+    "selection_score": 0.6143248568575634
+  },
+  {
+    "epoch": 51,
+    "train": {
+      "loss": 1.299833599726359,
+      "cross_entropy_loss": 0.5328864415486654,
+      "dice_loss": 0.7669471581776937,
+      "mean_iou": 0.6360512296358745,
+      "background_iou": 0.7299143314361572,
+      "ore_iou": 0.7472885529200236,
+      "talc_iou": 0.4309507648150126
+    },
+    "test": {
+      "loss": 1.0571825504302979,
+      "cross_entropy_loss": 0.3084404617547989,
+      "dice_loss": 0.7487420439720154,
+      "mean_iou": 0.730467160542806,
+      "background_iou": 0.7632764180501302,
+      "ore_iou": 0.8894345760345459,
+      "talc_iou": 0.5386905074119568
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20069924,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9950072058070574,
+      "background_recall": 0.9195089154711693,
+      "background_iou": 0.9152858275734904,
+      "ore_pred_pixels": 1564671,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8442439337087477,
+      "ore_recall": 0.8484572879071951,
+      "ore_iou": 0.7336210879880574,
+      "talc_pred_pixels": 3269085,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4614150442707975,
+      "talc_recall": 0.9259869733635364,
+      "talc_iou": 0.4450031714188781
+    },
+    "selection_score": 0.6493366189696834
+  },
+  {
+    "epoch": 52,
+    "train": {
+      "loss": 1.1855697552363078,
+      "cross_entropy_loss": 0.420592325925827,
+      "dice_loss": 0.7649774273236593,
+      "mean_iou": 0.6427532633145651,
+      "background_iou": 0.740162746111552,
+      "ore_iou": 0.68570223848025,
+      "talc_iou": 0.5023947119712829
+    },
+    "test": {
+      "loss": 1.134112020333608,
+      "cross_entropy_loss": 0.37625138461589813,
+      "dice_loss": 0.7578606406847636,
+      "mean_iou": 0.7966010570526123,
+      "background_iou": 0.6686255137125651,
+      "ore_iou": 0.8312966823577881,
+      "talc_iou": 0.8898809750874838
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19603724,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.99566735381502,
+      "background_recall": 0.8987457252248604,
+      "background_iou": 0.8952445208160715,
+      "ore_pred_pixels": 1840884,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7604107591787423,
+      "ore_recall": 0.8991117611203281,
+      "ore_iou": 0.7006296932316362,
+      "talc_pred_pixels": 3459072,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4136621035931024,
+      "talc_recall": 0.8783998477565578,
+      "talc_iou": 0.39125686496744055
+    },
+    "selection_score": 0.6030139597511883
+  },
+  {
+    "epoch": 53,
+    "train": {
+      "loss": 1.1612037420272827,
+      "cross_entropy_loss": 0.39693322976430256,
+      "dice_loss": 0.7642704963684082,
+      "mean_iou": 0.6730507453282674,
+      "background_iou": 0.7609159390131632,
+      "ore_iou": 0.7358572761217753,
+      "talc_iou": 0.5223789716760318
+    },
+    "test": {
+      "loss": 1.037345250447591,
+      "cross_entropy_loss": 0.29128743211428326,
+      "dice_loss": 0.7460578083992004,
+      "mean_iou": 0.7963403463363647,
+      "background_iou": 0.7457215785980225,
+      "ore_iou": 0.8873470226923624,
+      "talc_iou": 0.7559523979822794
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19798510,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9955805765181319,
+      "background_recall": 0.9075967101469582,
+      "background_iou": 0.9039548032962801,
+      "ore_pred_pixels": 1460562,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8521966202050991,
+      "ore_recall": 0.7994638066261117,
+      "ore_iou": 0.7021108689925467,
+      "talc_pred_pixels": 3644608,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4256293132210652,
+      "talc_recall": 0.9522900974235253,
+      "talc_iou": 0.41674264962284335
+    },
+    "selection_score": 0.6250108119846285
+  },
+  {
+    "epoch": 54,
+    "train": {
+      "loss": 1.1587313652038573,
+      "cross_entropy_loss": 0.3960257808367411,
+      "dice_loss": 0.7627055883407593,
+      "mean_iou": 0.6486940940221151,
+      "background_iou": 0.753762944539388,
+      "ore_iou": 0.6988109330336253,
+      "talc_iou": 0.4935083349545797
+    },
+    "test": {
+      "loss": 1.0434814095497131,
+      "cross_entropy_loss": 0.29561032851537067,
+      "dice_loss": 0.7478711009025574,
+      "mean_iou": 0.7760162353515625,
+      "background_iou": 0.7529128392537435,
+      "ore_iou": 0.8816835085550944,
+      "talc_iou": 0.6934523979822794
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19960556,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9933307468990342,
+      "background_recall": 0.9129573798167209,
+      "background_iou": 0.9073953874093511,
+      "ore_pred_pixels": 1769096,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.7914782465168652,
+      "ore_recall": 0.8993513396163275,
+      "ore_iou": 0.7270764920064223,
+      "talc_pred_pixels": 3174028,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.43586445992284883,
+      "talc_recall": 0.8492765367072445,
+      "talc_iou": 0.40456937049063735
+    },
+    "selection_score": 0.6289950467098429
+  },
+  {
+    "epoch": 55,
+    "train": {
+      "loss": 1.1751383384068808,
+      "cross_entropy_loss": 0.4067079643408457,
+      "dice_loss": 0.7684303681055705,
+      "mean_iou": 0.6260094185670216,
+      "background_iou": 0.764588717619578,
+      "ore_iou": 0.7063827852408091,
+      "talc_iou": 0.4070567122575503
+    },
+    "test": {
+      "loss": 1.0374386707941692,
+      "cross_entropy_loss": 0.29192958275477093,
+      "dice_loss": 0.7455090681711832,
+      "mean_iou": 0.8696011702219645,
+      "background_iou": 0.7639685471852621,
+      "ore_iou": 0.8894776701927185,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19907796,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9941798177960032,
+      "background_recall": 0.9113225463949886,
+      "background_iou": 0.9064863378938114,
+      "ore_pred_pixels": 1391926,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8352656678587799,
+      "ore_recall": 0.7467578221094341,
+      "ore_iou": 0.650895001060912,
+      "talc_pred_pixels": 3603958,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.42300742683460796,
+      "talc_recall": 0.9358680638685796,
+      "talc_iou": 0.4110910097461808
+    },
+    "selection_score": 0.6026899383613809
+  },
+  {
+    "epoch": 56,
+    "train": {
+      "loss": 1.1429521958033244,
+      "cross_entropy_loss": 0.37756356298923494,
+      "dice_loss": 0.7653886357943217,
+      "mean_iou": 0.6819195707639059,
+      "background_iou": 0.75403333902359,
+      "ore_iou": 0.7032577236493428,
+      "talc_iou": 0.5884676297505697
+    },
+    "test": {
+      "loss": 1.0453686316808064,
+      "cross_entropy_loss": 0.29825349152088165,
+      "dice_loss": 0.7471151351928711,
+      "mean_iou": 0.8816309968630472,
+      "background_iou": 0.7743827899297079,
+      "ore_iou": 0.8913434743881226,
+      "talc_iou": 0.9791666666666666
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19064270,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9957588724876432,
+      "background_recall": 0.8740944355850998,
+      "background_iou": 0.8708523086943452,
+      "ore_pred_pixels": 1331269,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8629728477114693,
+      "ore_recall": 0.7379075483926081,
+      "ore_iou": 0.6605157989813266,
+      "talc_pred_pixels": 4508141,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.34671564176896863,
+      "talc_recall": 0.9595284136601656,
+      "talc_iou": 0.3417183566138501
+    },
+    "selection_score": 0.5791623571156952
+  },
+  {
+    "epoch": 57,
+    "train": {
+      "loss": 1.1671480099360148,
+      "cross_entropy_loss": 0.39978697896003723,
+      "dice_loss": 0.7673610369364421,
+      "mean_iou": 0.6595232089360555,
+      "background_iou": 0.7328085819880168,
+      "ore_iou": 0.7119096199671427,
+      "talc_iou": 0.5338513553142548
+    },
+    "test": {
+      "loss": 1.039659897486369,
+      "cross_entropy_loss": 0.294376144806544,
+      "dice_loss": 0.7452837626139323,
+      "mean_iou": 0.8620346983273824,
+      "background_iou": 0.7618982791900635,
+      "ore_iou": 0.8926581541697184,
+      "talc_iou": 0.9315476417541504
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19314271,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9952792419656947,
+      "background_recall": 0.8851304015059714,
+      "background_iou": 0.8814298894304444,
+      "ore_pred_pixels": 1384873,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8503992784897966,
+      "ore_recall": 0.7564353802842956,
+      "ore_iou": 0.6675976529395793,
+      "talc_pred_pixels": 4204536,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3697040529561407,
+      "talc_recall": 0.9542434790082076,
+      "talc_iou": 0.3632642778621159
+    },
+    "selection_score": 0.5908764031546218
+  },
+  {
+    "epoch": 58,
+    "train": {
+      "loss": 1.1286779244740803,
+      "cross_entropy_loss": 0.36251770754655205,
+      "dice_loss": 0.7661602139472962,
+      "mean_iou": 0.6641050060590108,
+      "background_iou": 0.7630995233853658,
+      "ore_iou": 0.7262328863143921,
+      "talc_iou": 0.5029825508594513
+    },
+    "test": {
+      "loss": 1.0234932502110798,
+      "cross_entropy_loss": 0.2798249175151189,
+      "dice_loss": 0.7436683575312296,
+      "mean_iou": 0.8568335771560669,
+      "background_iou": 0.7690258026123047,
+      "ore_iou": 0.890760600566864,
+      "talc_iou": 0.910714308420817
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19814998,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9939942461765577,
+      "background_recall": 0.9069052039273391,
+      "background_iou": 0.9019628459519253,
+      "ore_pred_pixels": 1319719,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8751143235794893,
+      "ore_recall": 0.7417973268692101,
+      "ore_iou": 0.6707875577549129,
+      "talc_pred_pixels": 3768963,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4116240992548879,
+      "talc_recall": 0.9523784968415625,
+      "talc_iou": 0.4033227809845583
+    },
+    "selection_score": 0.6077962556091613
+  },
+  {
+    "epoch": 59,
+    "train": {
+      "loss": 1.214199678103129,
+      "cross_entropy_loss": 0.4457803338766098,
+      "dice_loss": 0.768419337272644,
+      "mean_iou": 0.6116285065809886,
+      "background_iou": 0.7404987732569377,
+      "ore_iou": 0.6404492298762003,
+      "talc_iou": 0.45393747637669246
+    },
+    "test": {
+      "loss": 1.0224252541859944,
+      "cross_entropy_loss": 0.28014301260312396,
+      "dice_loss": 0.7422822316487631,
+      "mean_iou": 0.8416406512260437,
+      "background_iou": 0.7512046098709106,
+      "ore_iou": 0.8897886872291565,
+      "talc_iou": 0.8839285771052042
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 18953599,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9901504194533186,
+      "background_recall": 0.8641255662576276,
+      "background_iou": 0.8567609002974458,
+      "ore_pred_pixels": 1264041,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8775126756173257,
+      "ore_recall": 0.7124486399584816,
+      "ore_iou": 0.6480064028789587,
+      "talc_pred_pixels": 4686040,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3222750979505083,
+      "talc_recall": 0.9270852133556787,
+      "talc_iou": 0.31430839391144216
+    },
+    "selection_score": 0.5628836561619917
+  },
+  {
+    "epoch": 60,
+    "train": {
+      "loss": 1.1826243638992309,
+      "cross_entropy_loss": 0.4143464823563894,
+      "dice_loss": 0.7682778835296631,
+      "mean_iou": 0.6119079987208048,
+      "background_iou": 0.7116448561350505,
+      "ore_iou": 0.6673345764478048,
+      "talc_iou": 0.45674452384312947
+    },
+    "test": {
+      "loss": 1.0189199248949687,
+      "cross_entropy_loss": 0.27547504504521686,
+      "dice_loss": 0.7434448997179667,
+      "mean_iou": 0.7834856708844503,
+      "background_iou": 0.7479857405026754,
+      "ore_iou": 0.885209341843923,
+      "talc_iou": 0.7172619104385376
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19927764,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9934434691217741,
+      "background_recall": 0.9115609682357921,
+      "background_iou": 0.9061097012485911,
+      "ore_pred_pixels": 1387739,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8308839054029612,
+      "ore_recall": 0.7406058574051915,
+      "ore_iou": 0.6435903303769278,
+      "talc_pred_pixels": 3588177,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.43003034688645514,
+      "talc_recall": 0.9472396667833047,
+      "talc_iou": 0.41997108424815505
+    },
+    "selection_score": 0.6024664342188177
+  },
+  {
+    "epoch": 61,
+    "train": {
+      "loss": 1.2546740611394247,
+      "cross_entropy_loss": 0.48154860734939575,
+      "dice_loss": 0.7731254537900288,
+      "mean_iou": 0.5923004070917766,
+      "background_iou": 0.7254415988922119,
+      "ore_iou": 0.6323862175146738,
+      "talc_iou": 0.41907333734352964
+    },
+    "test": {
+      "loss": 1.0567371249198914,
+      "cross_entropy_loss": 0.30922510226567584,
+      "dice_loss": 0.7475120226542155,
+      "mean_iou": 0.7242813309033712,
+      "background_iou": 0.7009223302205404,
+      "ore_iou": 0.8558501203854879,
+      "talc_iou": 0.6160714427630106
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 18741628,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9962862884697103,
+      "background_recall": 0.8597564791181284,
+      "background_iou": 0.8570099428982151,
+      "ore_pred_pixels": 1174569,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.905773096344276,
+      "ore_recall": 0.6833401738453505,
+      "ore_iou": 0.6379873313196333,
+      "talc_pred_pixels": 4987483,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.32330135260611415,
+      "talc_recall": 0.9898647611681001,
+      "talc_iou": 0.3222346633978105
+    },
+    "selection_score": 0.5552588219640751
+  },
+  {
+    "epoch": 62,
+    "train": {
+      "loss": 1.1776461362838746,
+      "cross_entropy_loss": 0.4089612265427907,
+      "dice_loss": 0.7686849117279053,
+      "mean_iou": 0.6645747900009156,
+      "background_iou": 0.7532435655593872,
+      "ore_iou": 0.7084930618604024,
+      "talc_iou": 0.5319876909255982
+    },
+    "test": {
+      "loss": 1.007660190264384,
+      "cross_entropy_loss": 0.2682507336139679,
+      "dice_loss": 0.7394094467163086,
+      "mean_iou": 0.8644282817840576,
+      "background_iou": 0.7691389322280884,
+      "ore_iou": 0.8896220326423645,
+      "talc_iou": 0.9345238208770752
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19766259,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9949924768262928,
+      "background_recall": 0.9055830171450536,
+      "background_iou": 0.901474502045191,
+      "ore_pred_pixels": 1344530,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8426282790268719,
+      "ore_recall": 0.7276885299707561,
+      "ore_iou": 0.6406243285239628,
+      "talc_pred_pixels": 3792891,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.41337201622719977,
+      "talc_recall": 0.9624947052431905,
+      "talc_iou": 0.4068190699187802
+    },
+    "selection_score": 0.5969017659055702
+  },
+  {
+    "epoch": 63,
+    "train": {
+      "loss": 1.1817249615987142,
+      "cross_entropy_loss": 0.41406186620394386,
+      "dice_loss": 0.7676630973815918,
+      "mean_iou": 0.6716579914093017,
+      "background_iou": 0.7390461524327596,
+      "ore_iou": 0.689246275027593,
+      "talc_iou": 0.5866815060377121
+    },
+    "test": {
+      "loss": 1.0193848808606465,
+      "cross_entropy_loss": 0.2766570101181666,
+      "dice_loss": 0.7427278359731039,
+      "mean_iou": 0.8319951891899109,
+      "background_iou": 0.7508378823598226,
+      "ore_iou": 0.8731237848599752,
+      "talc_iou": 0.8720238208770752
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19362669,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9966977176545238,
+      "background_recall": 0.8886130272165116,
+      "background_iou": 0.8860044762243622,
+      "ore_pred_pixels": 1285144,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8772417721282596,
+      "ore_recall": 0.7241192599914831,
+      "ore_iou": 0.6574947963535692,
+      "talc_pred_pixels": 4255867,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3769950987660094,
+      "talc_recall": 0.9849420185761555,
+      "talc_iou": 0.3748347115547253
+    },
+    "selection_score": 0.5875565601353129
+  },
+  {
+    "epoch": 64,
+    "train": {
+      "loss": 1.1886654853820802,
+      "cross_entropy_loss": 0.42285309731960297,
+      "dice_loss": 0.7658123930295309,
+      "mean_iou": 0.6723536213239034,
+      "background_iou": 0.7375085393587748,
+      "ore_iou": 0.7230778237183889,
+      "talc_iou": 0.5564744373162588
+    },
+    "test": {
+      "loss": 1.0109680692354839,
+      "cross_entropy_loss": 0.27062082290649414,
+      "dice_loss": 0.7403472264607748,
+      "mean_iou": 0.8755450050036112,
+      "background_iou": 0.7762633363405863,
+      "ore_iou": 0.8950145840644836,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19575686,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9954638115874969,
+      "background_recall": 0.8972768385613853,
+      "background_iou": 0.8936230247271836,
+      "ore_pred_pixels": 1415476,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8328774207404435,
+      "ore_recall": 0.7572209151384706,
+      "ore_iou": 0.6573431564368073,
+      "talc_pred_pixels": 3912518,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.39712609628888607,
+      "talc_recall": 0.9538315622755483,
+      "talc_iou": 0.3896364468462595
+    },
+    "selection_score": 0.5977947581261235
+  },
+  {
+    "epoch": 65,
+    "train": {
+      "loss": 1.105206561088562,
+      "cross_entropy_loss": 0.34700167377789815,
+      "dice_loss": 0.7582049012184143,
+      "mean_iou": 0.6879201034704844,
+      "background_iou": 0.7802250782648722,
+      "ore_iou": 0.7603744049866994,
+      "talc_iou": 0.5231607699145874
+    },
+    "test": {
+      "loss": 1.0066635211308796,
+      "cross_entropy_loss": 0.26657696564992267,
+      "dice_loss": 0.740086555480957,
+      "mean_iou": 0.8629223704338074,
+      "background_iou": 0.7589948574701945,
+      "ore_iou": 0.8922721346219381,
+      "talc_iou": 0.9375
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20152011,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9941753207657539,
+      "background_recall": 0.9224978449713781,
+      "background_iou": 0.9175387910559781,
+      "ore_pred_pixels": 1430701,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8302636260127029,
+      "ore_recall": 0.7629637337248804,
+      "ore_iou": 0.6600159022704909,
+      "talc_pred_pixels": 3320968,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4623977105470453,
+      "talc_recall": 0.9426864828695434,
+      "talc_iou": 0.4497538316448615
+    },
+    "selection_score": 0.6223623204905286
+  },
+  {
+    "epoch": 66,
+    "train": {
+      "loss": 1.1123520096143087,
+      "cross_entropy_loss": 0.35087909599145256,
+      "dice_loss": 0.7614729205767313,
+      "mean_iou": 0.7032347957293192,
+      "background_iou": 0.7627866744995118,
+      "ore_iou": 0.7629664182662964,
+      "talc_iou": 0.5839511851469675
+    },
+    "test": {
+      "loss": 1.018096665541331,
+      "cross_entropy_loss": 0.2733713785807292,
+      "dice_loss": 0.7447252869606018,
+      "mean_iou": 0.8610128362973531,
+      "background_iou": 0.749641219774882,
+      "ore_iou": 0.8780400554339091,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19337516,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9955009216281967,
+      "background_recall": 0.8863930518957966,
+      "background_iou": 0.8828563514197096,
+      "ore_pred_pixels": 1326369,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8637045950259694,
+      "ore_recall": 0.7358149297868009,
+      "ore_iou": 0.6592650311133414,
+      "talc_pred_pixels": 4239795,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.36867702329947555,
+      "talc_recall": 0.9595726133691842,
+      "talc_iou": 0.3630381010997178
+    },
+    "selection_score": 0.5845292639720056
+  },
+  {
+    "epoch": 67,
+    "train": {
+      "loss": 1.1340330282847086,
+      "cross_entropy_loss": 0.37524652282396953,
+      "dice_loss": 0.7587864955266317,
+      "mean_iou": 0.6946287492911021,
+      "background_iou": 0.7546807487805685,
+      "ore_iou": 0.7162887275218963,
+      "talc_iou": 0.6129167179266611
+    },
+    "test": {
+      "loss": 0.9979727665583292,
+      "cross_entropy_loss": 0.2596626877784729,
+      "dice_loss": 0.7383100589116415,
+      "mean_iou": 0.8913850585619608,
+      "background_iou": 0.7760790983835856,
+      "ore_iou": 0.8980759779612223,
+      "talc_iou": 1.0
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20270614,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9928973044427761,
+      "background_recall": 0.9267342760036245,
+      "background_iou": 0.9206310463669823,
+      "ore_pred_pixels": 1362718,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8555621926179885,
+      "ore_recall": 0.7488530099216327,
+      "ore_iou": 0.6648062499964361,
+      "talc_pred_pixels": 3270348,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.46541683025781966,
+      "talc_recall": 0.9343787792285922,
+      "talc_iou": 0.4506856628320793
+    },
+    "selection_score": 0.6258119607236508
+  },
+  {
+    "epoch": 68,
+    "train": {
+      "loss": 1.1536908149719238,
+      "cross_entropy_loss": 0.39216366012891135,
+      "dice_loss": 0.761527156829834,
+      "mean_iou": 0.6638071695963542,
+      "background_iou": 0.7547921538352966,
+      "ore_iou": 0.668373566865921,
+      "talc_iou": 0.5682557076215744
+    },
+    "test": {
+      "loss": 0.9761092265446981,
+      "cross_entropy_loss": 0.23971161246299744,
+      "dice_loss": 0.7363976041475931,
+      "mean_iou": 0.8744005560874939,
+      "background_iou": 0.7719862262407938,
+      "ore_iou": 0.8958581487337748,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19953643,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9952367595230606,
+      "background_recall": 0.9143923772421058,
+      "background_iou": 0.9104081433089014,
+      "ore_pred_pixels": 1357677,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8529458774067764,
+      "ore_recall": 0.7438013078545136,
+      "ore_iou": 0.6592599255473647,
+      "talc_pred_pixels": 3592360,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.435922624681268,
+      "talc_recall": 0.9613381461905376,
+      "talc_iou": 0.4284119749221618
+    },
+    "selection_score": 0.6142403899345655
+  },
+  {
+    "epoch": 69,
+    "train": {
+      "loss": 1.1433133840560914,
+      "cross_entropy_loss": 0.3840741564830144,
+      "dice_loss": 0.7592392404874165,
+      "mean_iou": 0.6532240708669027,
+      "background_iou": 0.770961050192515,
+      "ore_iou": 0.7480135957400004,
+      "talc_iou": 0.44069750706354777
+    },
+    "test": {
+      "loss": 0.979776918888092,
+      "cross_entropy_loss": 0.24232840041319528,
+      "dice_loss": 0.737448493639628,
+      "mean_iou": 0.8089649677276611,
+      "background_iou": 0.7671305139859518,
+      "ore_iou": 0.894883374373118,
+      "talc_iou": 0.7648809750874838
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19199888,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9975550899046911,
+      "background_recall": 0.881900471635974,
+      "background_iou": 0.8799983974087275,
+      "ore_pred_pixels": 1453946,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8101848349250935,
+      "ore_recall": 0.756608801715716,
+      "ore_iou": 0.6426845808950058,
+      "talc_pred_pixels": 4249846,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.37552607788611636,
+      "talc_recall": 0.9797160168695556,
+      "talc_iou": 0.37262893636256655
+    },
+    "selection_score": 0.5851020817776527
+  },
+  {
+    "epoch": 70,
+    "train": {
+      "loss": 1.1208906809488932,
+      "cross_entropy_loss": 0.3627587616443634,
+      "dice_loss": 0.7581319212913513,
+      "mean_iou": 0.6396905064582825,
+      "background_iou": 0.7585210839907328,
+      "ore_iou": 0.6986238400141398,
+      "talc_iou": 0.46192654771448777
+    },
+    "test": {
+      "loss": 0.9975276192029318,
+      "cross_entropy_loss": 0.25755103925863904,
+      "dice_loss": 0.7399765849113464,
+      "mean_iou": 0.8723284006118774,
+      "background_iou": 0.7719492117563883,
+      "ore_iou": 0.8896787563959757,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20064186,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9935958528295142,
+      "background_recall": 0.9179421367965802,
+      "background_iou": 0.9125430513345897,
+      "ore_pred_pixels": 1345551,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8470723146131213,
+      "ore_recall": 0.7320818729000752,
+      "ore_iou": 0.6466196509505734,
+      "talc_pred_pixels": 3493943,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.44317780799515044,
+      "talc_recall": 0.9505626254627157,
+      "talc_iou": 0.4331931262632974
+    },
+    "selection_score": 0.6098608621647434
+  },
+  {
+    "epoch": 71,
+    "train": {
+      "loss": 1.135396949450175,
+      "cross_entropy_loss": 0.37282521029313404,
+      "dice_loss": 0.7625717520713806,
+      "mean_iou": 0.6745972732702891,
+      "background_iou": 0.7582544048627218,
+      "ore_iou": 0.7085302035013835,
+      "talc_iou": 0.5570071478684743
+    },
+    "test": {
+      "loss": 0.9878873427708944,
+      "cross_entropy_loss": 0.2501717507839203,
+      "dice_loss": 0.7377156217892965,
+      "mean_iou": 0.8885303735733032,
+      "background_iou": 0.7706761161486307,
+      "ore_iou": 0.8949149449666342,
+      "talc_iou": 1.0
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19360975,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9922193484573995,
+      "background_recall": 0.884542911303806,
+      "background_iou": 0.87844973009061,
+      "ore_pred_pixels": 1192917,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.9043806065300436,
+      "ore_recall": 0.6929477211460459,
+      "ore_iou": 0.6456447075256423,
+      "talc_pred_pixels": 4349788,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.35841011102150266,
+      "talc_recall": 0.9570513883005826,
+      "talc_iou": 0.3527366932518808
+    },
+    "selection_score": 0.5783355493043361
+  },
+  {
+    "epoch": 72,
+    "train": {
+      "loss": 1.087381903330485,
+      "cross_entropy_loss": 0.332538969318072,
+      "dice_loss": 0.7548429171244303,
+      "mean_iou": 0.6968736410140991,
+      "background_iou": 0.7551581581433614,
+      "ore_iou": 0.7329271872838338,
+      "talc_iou": 0.6025355060895284
+    },
+    "test": {
+      "loss": 0.9893162250518799,
+      "cross_entropy_loss": 0.25043267011642456,
+      "dice_loss": 0.7388835549354553,
+      "mean_iou": 0.8921119173367819,
+      "background_iou": 0.779357393582662,
+      "ore_iou": 0.8969782193501791,
+      "talc_iou": 1.0
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20209625,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9919946065303042,
+      "background_recall": 0.9231059634054245,
+      "background_iou": 0.916280168805684,
+      "ore_pred_pixels": 1280793,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.886321989579893,
+      "ore_recall": 0.729137562375514,
+      "ore_iou": 0.666781595760115,
+      "talc_pred_pixels": 3413262,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4518337590258234,
+      "talc_recall": 0.9467497866750155,
+      "talc_iou": 0.4406356562347768
+    },
+    "selection_score": 0.6223625446679926
+  },
+  {
+    "epoch": 73,
+    "train": {
+      "loss": 1.0946622371673584,
+      "cross_entropy_loss": 0.33856250246365865,
+      "dice_loss": 0.7560997287432353,
+      "mean_iou": 0.6976926128069559,
+      "background_iou": 0.7760911742846172,
+      "ore_iou": 0.7247133851051331,
+      "talc_iou": 0.5922731796900431
+    },
+    "test": {
+      "loss": 0.9942234953244528,
+      "cross_entropy_loss": 0.25420867403348285,
+      "dice_loss": 0.7400148312250773,
+      "mean_iou": 0.8767551779747009,
+      "background_iou": 0.7799325982729594,
+      "ore_iou": 0.8949757218360901,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20010616,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9943129187027526,
+      "background_recall": 0.9161519930486542,
+      "background_iou": 0.9113763523910352,
+      "ore_pred_pixels": 1368532,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8490689293344986,
+      "ore_recall": 0.7463403260708291,
+      "ore_iou": 0.6589212653569272,
+      "talc_pred_pixels": 3524532,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4406193503137438,
+      "talc_recall": 0.9533490487854288,
+      "talc_iou": 0.431319599225113
+    },
+    "selection_score": 0.6150914902000342
+  },
+  {
+    "epoch": 74,
+    "train": {
+      "loss": 1.089330287774404,
+      "cross_entropy_loss": 0.33291103740533196,
+      "dice_loss": 0.7564192573229472,
+      "mean_iou": 0.6994007229804993,
+      "background_iou": 0.7636271953582764,
+      "ore_iou": 0.736052127679189,
+      "talc_iou": 0.5985227187474569
+    },
+    "test": {
+      "loss": 0.9822109142939249,
+      "cross_entropy_loss": 0.24477410316467285,
+      "dice_loss": 0.7374367912610372,
+      "mean_iou": 0.878686269124349,
+      "background_iou": 0.7839561899503072,
+      "ore_iou": 0.8967453837394714,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19805578,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9941970893250376,
+      "background_recall": 0.9066590464995802,
+      "background_iou": 0.9018862910420905,
+      "ore_pred_pixels": 1255637,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.882467624002797,
+      "ore_recall": 0.7117080662161563,
+      "ore_iou": 0.650086624710542,
+      "talc_pred_pixels": 3842465,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.407392650290894,
+      "talc_recall": 0.9609704291668969,
+      "talc_iou": 0.40076158915813265
+    },
+    "selection_score": 0.5996883622953642
+  },
+  {
+    "epoch": 75,
+    "train": {
+      "loss": 1.115043584505717,
+      "cross_entropy_loss": 0.35612313052018485,
+      "dice_loss": 0.7589204510052999,
+      "mean_iou": 0.6819385608037313,
+      "background_iou": 0.7670717477798462,
+      "ore_iou": 0.7094954172770183,
+      "talc_iou": 0.5692484517892201
+    },
+    "test": {
+      "loss": 0.999504566192627,
+      "cross_entropy_loss": 0.25899089376131695,
+      "dice_loss": 0.7405137022336324,
+      "mean_iou": 0.8608138561248779,
+      "background_iou": 0.7534756660461426,
+      "ore_iou": 0.8736086289087931,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19045204,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9963027962315342,
+      "background_recall": 0.873697250031069,
+      "background_iou": 0.8708736825394159,
+      "ore_pred_pixels": 1277825,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8841328037876861,
+      "ore_recall": 0.7256511493023641,
+      "ore_iou": 0.6626358757014098,
+      "talc_pred_pixels": 4580651,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3473425502182987,
+      "talc_recall": 0.9767245560077841,
+      "talc_iou": 0.3444911256004569
+    },
+    "selection_score": 0.5775725263025053
+  },
+  {
+    "epoch": 76,
+    "train": {
+      "loss": 1.0880972862243652,
+      "cross_entropy_loss": 0.33023250301678975,
+      "dice_loss": 0.757864793141683,
+      "mean_iou": 0.6884199221928914,
+      "background_iou": 0.7728624145189921,
+      "ore_iou": 0.7476649463176728,
+      "talc_iou": 0.5447323570648829
+    },
+    "test": {
+      "loss": 1.0313839117685955,
+      "cross_entropy_loss": 0.2865492105484009,
+      "dice_loss": 0.7448346614837646,
+      "mean_iou": 0.8182240128517151,
+      "background_iou": 0.7119074861208597,
+      "ore_iou": 0.8528836369514465,
+      "talc_iou": 0.8898809750874838
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19968782,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9940035401257823,
+      "background_recall": 0.9139522315533763,
+      "background_iou": 0.9089407507279548,
+      "ore_pred_pixels": 1345780,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8679382960067767,
+      "ore_recall": 0.7502429505793882,
+      "ore_iou": 0.6733747370472153,
+      "talc_pred_pixels": 3589118,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4339077177178349,
+      "talc_recall": 0.9560311116840703,
+      "talc_iou": 0.42541812561497094
+    },
+    "selection_score": 0.6100938724551638
+  },
+  {
+    "epoch": 77,
+    "train": {
+      "loss": 1.0826242049535115,
+      "cross_entropy_loss": 0.32565447092056277,
+      "dice_loss": 0.7569697300593058,
+      "mean_iou": 0.6743295828501383,
+      "background_iou": 0.782586681842804,
+      "ore_iou": 0.7377023756504059,
+      "talc_iou": 0.5026996433734894
+    },
+    "test": {
+      "loss": 0.9713429609934489,
+      "cross_entropy_loss": 0.2370301087697347,
+      "dice_loss": 0.7343128522237142,
+      "mean_iou": 0.8731510639190674,
+      "background_iou": 0.7826074759165446,
+      "ore_iou": 0.9023219545682272,
+      "talc_iou": 0.9345238208770752
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19396082,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9941317530004256,
+      "background_recall": 0.8878548015594022,
+      "background_iou": 0.8832258974707797,
+      "ore_pred_pixels": 1361427,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8572490482412939,
+      "ore_recall": 0.7496186334262743,
+      "ore_iou": 0.6664295021944375,
+      "talc_pred_pixels": 4146171,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.3745641460518633,
+      "talc_recall": 0.9533674653308533,
+      "talc_iou": 0.3678251329777785
+    },
+    "selection_score": 0.5941662449825319
+  },
+  {
+    "epoch": 78,
+    "train": {
+      "loss": 1.1336931347846986,
+      "cross_entropy_loss": 0.37389666338761646,
+      "dice_loss": 0.7597964763641357,
+      "mean_iou": 0.6679380277792613,
+      "background_iou": 0.7657431602478028,
+      "ore_iou": 0.6979355156421662,
+      "talc_iou": 0.5401353547970454
+    },
+    "test": {
+      "loss": 0.9859666029612223,
+      "cross_entropy_loss": 0.25028036038080853,
+      "dice_loss": 0.7356862227121989,
+      "mean_iou": 0.885628898938497,
+      "background_iou": 0.7799629966417948,
+      "ore_iou": 0.8977570136388143,
+      "talc_iou": 0.9791666666666666
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19743809,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9934255846984743,
+      "background_recall": 0.9031300072673076,
+      "background_iou": 0.8977642088405722,
+      "ore_pred_pixels": 1462698,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8171809901975664,
+      "ore_recall": 0.7677360345969333,
+      "ore_iou": 0.6552005963898679,
+      "talc_pred_pixels": 3697173,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.4114462590741629,
+      "talc_recall": 0.9338342633688773,
+      "talc_iou": 0.399791324733144
+    },
+    "selection_score": 0.6015481711769677
+  },
+  {
+    "epoch": 79,
+    "train": {
+      "loss": 1.0773435513178506,
+      "cross_entropy_loss": 0.3257020264863968,
+      "dice_loss": 0.7516415079434713,
+      "mean_iou": 0.6873558362325033,
+      "background_iou": 0.7854208628336589,
+      "ore_iou": 0.7137381553649902,
+      "talc_iou": 0.5629084428151448
+    },
+    "test": {
+      "loss": 0.9612816373507181,
+      "cross_entropy_loss": 0.22725282609462738,
+      "dice_loss": 0.7340288162231445,
+      "mean_iou": 0.8799646099408468,
+      "background_iou": 0.7873302102088928,
+      "ore_iou": 0.8972064654032389,
+      "talc_iou": 0.9553571542104086
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 19843292,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9935855905360864,
+      "background_recall": 0.9078267978137206,
+      "background_iou": 0.902537238112799,
+      "ore_pred_pixels": 1262501,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.8932491934659854,
+      "ore_recall": 0.7243414963443404,
+      "ore_iou": 0.666634351535816,
+      "talc_pred_pixels": 3797887,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.41070205616965433,
+      "talc_recall": 0.957537585099787,
+      "talc_iou": 0.40335583364817224
+    },
+    "selection_score": 0.6074373671542431
+  },
+  {
+    "epoch": 80,
+    "train": {
+      "loss": 1.1257828950881958,
+      "cross_entropy_loss": 0.36751577655474343,
+      "dice_loss": 0.7582671165466308,
+      "mean_iou": 0.6834514657656352,
+      "background_iou": 0.764280887444814,
+      "ore_iou": 0.7555180688699087,
+      "talc_iou": 0.5305553952940644
+    },
+    "test": {
+      "loss": 1.0021297931671143,
+      "cross_entropy_loss": 0.2609796126683553,
+      "dice_loss": 0.7411501804987589,
+      "mean_iou": 0.8522698084513346,
+      "background_iou": 0.7685161431630453,
+      "ore_iou": 0.8775789141654968,
+      "talc_iou": 0.910714308420817
+    },
+    "active_diagnostics": {
+      "background_pred_pixels": 20499105,
+      "background_label_pixels": 21717809,
+      "background_precision": 0.9927227554568846,
+      "background_recall": 0.9370156998802227,
+      "background_iou": 0.9306233607137262,
+      "ore_pred_pixels": 1361906,
+      "ore_label_pixels": 1556901,
+      "ore_precision": 0.860341315773629,
+      "ore_recall": 0.7525873514115541,
+      "ore_iou": 0.6706553649097964,
+      "talc_pred_pixels": 3042669,
+      "talc_label_pixels": 1628970,
+      "talc_precision": 0.5029515205235929,
+      "talc_recall": 0.93943719037183,
+      "talc_iou": 0.48715605267078466
+    },
+    "selection_score": 0.6386403498653318
+  }
+]

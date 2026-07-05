@@ -18,17 +18,16 @@ from ore_detection.backend.ui_annotation import (
 from ore_detection.backend.panorama_jobs import PANORAMA_JOB_MANAGER, PanoramaPredictionRequest
 from ore_detection.backend.panorama_review import (
     append_brush_patch,
+    apply_talc_threshold_to_panorama,
     class_area_metrics,
     read_panorama_metadata,
     render_panorama_tile,
     restore_base_prediction,
+    save_erosion_ratio_intergrowth_artifacts,
     save_panorama_review,
+    talc_histograms_for_panorama,
 )
-from ore_detection.descriptors.intergrowth_classification import (
-    IntergrowthClassifierConfig,
-    load_intergrowth_classifier_config,
-    save_intergrowth_artifacts,
-)
+from ore_detection.descriptors.erosion_ratio import ErosionRatioConfig, load_erosion_ratio_config
 from ore_detection.inference.model_prediction import (
     SegmentationPredictionArtifacts,
     load_simple_unet_checkpoint,
@@ -55,12 +54,14 @@ class BackendConfig:
     panorama_jobs_root: Path = Path("data_work/panorama_jobs")
     uploads_root: Path = Path("data_work/ui_uploads")
     binary_model_path: Path = Path("models/source_binary_segmentation/001/best.pt")
+    ct_unet_model_path: Path = Path("models/source_binary_segmentation_ct_unet/001/best.pt")
     ore_model_path: Path = Path("models/source_ore_segmentation/001/best.pt")
     intergrowth_classifier_path: Path = Path("models/intergrowth_classifier/001/classifier.json")
+    intergrowth_erosion_ratio_path: Path = Path("models/intergrowth_erosion_ratio/001/classifier.json")
     stats_sample_max_image_size: int = 512
     panorama_tile_size: int = 512
-    panorama_overlap: int = 128
-    panorama_batch_size: int = 4
+    panorama_overlap: int = 0
+    panorama_batch_size: int = 16
 
     def resolve(self) -> "BackendConfig":
         root = Path(self.project_root).resolve()
@@ -76,8 +77,10 @@ class BackendConfig:
             panorama_jobs_root=under_root(Path(self.panorama_jobs_root)),
             uploads_root=under_root(Path(self.uploads_root)),
             binary_model_path=under_root(Path(self.binary_model_path)),
+            ct_unet_model_path=under_root(Path(self.ct_unet_model_path)),
             ore_model_path=under_root(Path(self.ore_model_path)),
             intergrowth_classifier_path=under_root(Path(self.intergrowth_classifier_path)),
+            intergrowth_erosion_ratio_path=under_root(Path(self.intergrowth_erosion_ratio_path)),
             stats_sample_max_image_size=self.stats_sample_max_image_size,
             panorama_tile_size=self.panorama_tile_size,
             panorama_overlap=self.panorama_overlap,
@@ -185,6 +188,7 @@ def create_prediction_from_request(
     standardize: str | bool = "off",
     binary_threshold: str = "0.5",
     binary_model_path: str = "",
+    ct_unet_model_path: str = "",
     ore_model_path: str = "",
     device: str = "auto",
     saved_mask_path: str = "",
@@ -207,6 +211,21 @@ def create_prediction_from_request(
             binary_model=binary_model,
             ore_model=ore_model,
             output_root=cfg.predictions_root / "trained_binary_ore",
+            binary_threshold=float(binary_threshold),
+        )
+        if saved_mask_path:
+            _attach_saved_mask(artifacts, _resolve_active_learning_mask(saved_mask_path, config=cfg))
+        return artifacts
+
+    if model_kind == "trained_ct_unet":
+        resolved_ct_unet_model = _resolve_request_path(ct_unet_model_path or cfg.ct_unet_model_path, config=cfg)
+        resolved_device = _resolve_device(device)
+        binary_model = load_simple_unet_checkpoint(resolved_ct_unet_model, device=resolved_device)
+        artifacts = save_segmentation_prediction(
+            path,
+            binary_model=binary_model,
+            ore_model=None,
+            output_root=cfg.predictions_root / "trained_ct_unet",
             binary_threshold=float(binary_threshold),
         )
         if saved_mask_path:
@@ -304,6 +323,7 @@ def start_panorama_prediction_from_request(
     image_path: str,
     model_kind: str = "binary",
     binary_model_path: str = "",
+    ct_unet_model_path: str = "",
     ore_model_path: str = "",
     include_ore_model: str | bool = "off",
     device: str = "auto",
@@ -318,13 +338,27 @@ def start_panorama_prediction_from_request(
     path = _resolve_request_path(image_path, config=cfg)
     if not path.exists():
         raise FileNotFoundError(f"image does not exist: {path}")
-    resolved_binary_model = _resolve_request_path(binary_model_path or cfg.binary_model_path, config=cfg)
-    resolved_ore_model = _resolve_request_path(ore_model_path or cfg.ore_model_path, config=cfg)
+    selected_model_kind = "ore" if model_kind == "ore" else ("ct_unet" if model_kind == "ct_unet" else "binary")
+    if selected_model_kind == "ore":
+        resolved_ore_model = _resolve_request_path(ore_model_path or cfg.ore_model_path, config=cfg)
+        if not resolved_ore_model.exists():
+            raise FileNotFoundError(f"selected ore checkpoint does not exist: {resolved_ore_model}")
+        resolved_binary_model = cfg.binary_model_path
+    elif selected_model_kind == "ct_unet":
+        resolved_binary_model = _resolve_request_path(ct_unet_model_path or cfg.ct_unet_model_path, config=cfg)
+        if not resolved_binary_model.exists():
+            raise FileNotFoundError(f"selected CT-UNet checkpoint does not exist: {resolved_binary_model}")
+        resolved_ore_model = None
+    else:
+        resolved_binary_model = _resolve_request_path(binary_model_path or cfg.binary_model_path, config=cfg)
+        if not resolved_binary_model.exists():
+            raise FileNotFoundError(f"selected binary checkpoint does not exist: {resolved_binary_model}")
+        resolved_ore_model = None
     request = PanoramaPredictionRequest(
         image_path=path,
         binary_model_path=resolved_binary_model,
         ore_model_path=resolved_ore_model,
-        model_kind="ore" if model_kind == "ore" else "binary",
+        model_kind=selected_model_kind,
         include_ore_model=_parse_bool(include_ore_model),
         device=device,
         binary_threshold=_parse_float(binary_threshold, 0.5),
@@ -441,6 +475,26 @@ def panorama_metrics_from_request(
     )
 
 
+def panorama_talc_histograms_from_request(
+    *,
+    job_id: str,
+    config: BackendConfig | None = None,
+) -> dict[str, Any]:
+    sample_dir = resolve_panorama_sample_dir(job_id, config=config)
+    return talc_histograms_for_panorama(sample_dir)
+
+
+def apply_panorama_talc_threshold_from_request(
+    *,
+    job_id: str,
+    metric: str,
+    threshold: str,
+    config: BackendConfig | None = None,
+) -> dict[str, Any]:
+    sample_dir = resolve_panorama_sample_dir(job_id, config=config)
+    return apply_talc_threshold_to_panorama(sample_dir, metric=metric, threshold=int(float(threshold)))
+
+
 def run_intergrowth_from_request(
     *,
     job_id: str,
@@ -449,20 +503,18 @@ def run_intergrowth_from_request(
     hard_threshold: str | float = "",
     config: BackendConfig | None = None,
 ) -> dict[str, Any]:
-    """Run hard/normal morphology classification for a completed prediction job."""
+    """Run hard/normal erosion-ratio classification for a completed prediction job."""
     cfg = (config or BackendConfig()).resolve()
     sample_dir = resolve_panorama_sample_dir(job_id, config=cfg)
-    classifier = load_intergrowth_classifier_config(cfg.intergrowth_classifier_path)
+    classifier = load_erosion_ratio_config(cfg.intergrowth_erosion_ratio_path)
     if window_size != "":
-        classifier = IntergrowthClassifierConfig.from_dict({**classifier.to_dict(), "window_size": int(float(window_size))})
-    if stride != "":
-        classifier = IntergrowthClassifierConfig.from_dict({**classifier.to_dict(), "stride": int(float(stride))})
+        classifier = ErosionRatioConfig.from_dict({**classifier.to_dict(), "window_size": int(float(window_size))})
     if hard_threshold != "":
-        classifier = IntergrowthClassifierConfig.from_dict({**classifier.to_dict(), "hard_threshold": float(hard_threshold)})
-    return save_intergrowth_artifacts(
+        classifier = ErosionRatioConfig.from_dict({**classifier.to_dict(), "normal_threshold": float(hard_threshold)})
+    return save_erosion_ratio_intergrowth_artifacts(
         sample_dir,
         config=classifier,
-        classifier_config_path=cfg.intergrowth_classifier_path,
+        classifier_config_path=cfg.intergrowth_erosion_ratio_path,
     )
 
 
@@ -500,11 +552,12 @@ def _attach_saved_mask(artifacts: ArtifactLike, saved_mask_path: Path) -> None:
 
 
 def _class_names_from_metadata(metadata: dict[str, Any]) -> tuple[str, ...]:
-    checkpoint = metadata.get("ore_checkpoint")
-    if isinstance(checkpoint, dict):
-        names = checkpoint.get("class_names")
-        if isinstance(names, list) and names:
-            return tuple(str(name) for name in names)
+    for checkpoint_key in ("ore_checkpoint", "binary_checkpoint"):
+        checkpoint = metadata.get(checkpoint_key)
+        if isinstance(checkpoint, dict):
+            names = checkpoint.get("class_names")
+            if isinstance(names, list) and names:
+                return tuple(str(name) for name in names)
     return ()
 
 
@@ -911,6 +964,7 @@ def render_panorama_review_html(job_id: str, *, config: BackendConfig) -> str:
     metadata = read_panorama_metadata(sample_dir)
     class_names = _class_names_from_metadata(metadata)
     classes = ui_class_metadata(class_names)
+    image_values = [str(path) for path in list_ui_images(cfg.datasets_root, limit=500)]
     initial = {
         "jobId": job_id,
         "imagePath": metadata.get("image_path", ""),
@@ -918,6 +972,20 @@ def render_panorama_review_html(job_id: str, *, config: BackendConfig) -> str:
         "imageHeight": int(metadata["image_height"]),
         "classes": classes,
         "status": status,
+        "imageValues": image_values,
+        "hasIntergrowth": bool(
+            isinstance(metadata.get("artifacts"), dict)
+            and (
+                (
+                    metadata["artifacts"].get("intergrowth_score")
+                    and metadata["artifacts"].get("intergrowth_hard_score")
+                )
+                or (
+                    metadata["artifacts"].get("intergrowth_score_grid")
+                    and metadata["artifacts"].get("intergrowth_hard_score_grid")
+                )
+            )
+        ),
     }
     initial_json = _json_for_script(initial)
     classes_json = _json_for_script(classes)
@@ -931,8 +999,9 @@ def render_panorama_review_html(job_id: str, *, config: BackendConfig) -> str:
     .topbar, .panel, .tools {{ background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }}
     .topbar {{ position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,.06); }}
     .canvas-row {{ display: grid; grid-template-columns: repeat(3, minmax(280px, 1fr)); gap: 1rem; align-items: start; }}
+    .canvas-row > div {{ min-width: 0; }}
     .canvas-box {{ background: #111; border-radius: 8px; padding: .5rem; overflow: auto; }}
-    canvas {{ background: #222; image-rendering: pixelated; cursor: crosshair; max-width: 100%; }}
+    canvas {{ background: #222; image-rendering: pixelated; cursor: crosshair; max-width: none; }}
     label {{ margin-right: 1rem; white-space: nowrap; }}
     input, select, button {{ padding: .35rem; margin: .2rem; }}
     table {{ border-collapse: collapse; margin-top: .5rem; }}
@@ -943,13 +1012,15 @@ def render_panorama_review_html(job_id: str, *, config: BackendConfig) -> str:
     .swatch {{ display: inline-block; width: 1rem; height: 1rem; border: 1px solid #555; }}
     .progress-line span {{ display: inline-block; min-width: 9rem; }}
     .message {{ font-weight: 600; }}
+    .hist-row {{ display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 1rem; align-items: start; }}
+    .hist-row canvas {{ width: 100%; max-width: 512px; height: 180px; cursor: default; }}
   </style>
 </head>
 <body>
   <div class="topbar">
     <h1>Panorama mask review</h1>
     <p><a href="/active-learning">Back to Active Learning</a></p>
-    <p><strong>Image:</strong> <code>{html.escape(str(metadata.get("image_path", "")))}</code></p>
+    <p><strong>Image:</strong> <code>{html.escape(str(metadata.get("image_path", "")))}</code> <button id="nextImage" type="button">next image</button></p>
     <p class="progress-line">
       <span>job: <b>{html.escape(job_id)}</b></span>
       <span>size: <b>{int(metadata["image_width"])} x {int(metadata["image_height"])}</b></span>
@@ -971,9 +1042,8 @@ def render_panorama_review_html(job_id: str, *, config: BackendConfig) -> str:
     <label>View layer
       <select id="viewMode">
         <option value="review">editable prediction mask</option>
-        <option value="intergrowth">intergrowth mask</option>
-        <option value="intergrowth_score">intergrowth score</option>
-        <option value="intergrowth_confidence">intergrowth confidence</option>
+        <option value="intergrowth_normal">normal ore intergrowth mask</option>
+        <option value="intergrowth_hard">hard ore intergrowth mask</option>
       </select>
     </label>
     <label>Class <select id="classSelect"></select></label>
@@ -990,6 +1060,20 @@ def render_panorama_review_html(job_id: str, *, config: BackendConfig) -> str:
       <div><h2>Raw image + mask</h2><div class="canvas-box"><canvas id="overlayCanvas"></canvas></div></div>
       <div><h2>Mask only</h2><div class="canvas-box"><canvas id="maskCanvas"></canvas></div></div>
     </div>
+    <h2>Talc mask creation</h2>
+    <label>Metric
+      <select id="talcMetricSelect">
+        <option value="hsv_value">Value of HSV</option>
+        <option value="rgb_sum">R + G + B</option>
+      </select>
+    </label>
+    <label>Threshold <input id="talcThreshold" type="range" min="0" max="255" value="50"><span id="talcThresholdText">50</span></label>
+    <button id="applyTalc" type="button">Apply talc threshold to mask</button>
+    <p>Pixels with selected metric below threshold become the editable <code>talc</code> class unless they are already a non-talc ore/review class.</p>
+    <div class="hist-row">
+      <div><h2>Histogram: HSV Value</h2><canvas id="histV" width="512" height="180"></canvas></div>
+      <div><h2>Histogram: R + G + B</h2><canvas id="histRgb" width="512" height="180"></canvas></div>
+    </div>
     <h2>Metrics</h2>
     <div id="metrics"></div>
   </div>
@@ -999,6 +1083,7 @@ const INITIAL = {initial_json};
 const CLASSES_JSON = {classes_json};
 const classes = INITIAL.classes;
 const jobId = INITIAL.jobId;
+const imageValues = INITIAL.imageValues || [];
 let view = {{
   x: 0,
   y: 0,
@@ -1006,7 +1091,14 @@ let view = {{
   h: INITIAL.imageHeight
 }};
 let cropSelecting = false, cropStart = null, cropCurrent = null, hoverPoint = null;
-const displayW = 520;
+let dirty = false;
+let intergrowthReady = Boolean(INITIAL.hasIntergrowth);
+let talcHistograms = null;
+const histogramTicks = {{
+  histV: [0, 64, 128, 192, 255],
+  histRgb: [0, 191, 383, 574, 765]
+}};
+const maxViewportDisplayPixels = 1000;
 const canvases = {{
   raw: document.getElementById('rawCanvas'),
   overlay: document.getElementById('overlayCanvas'),
@@ -1015,6 +1107,8 @@ const canvases = {{
 const canvasImages = {{raw: null, overlay: null, mask: null}};
 const canvasImageKeys = {{raw: '', overlay: '', mask: ''}};
 let tileRevision = 0;
+let metricsRevision = 0;
+let fullMetricsCache = {{layer: '', tileRevision: -1, data: null}};
 
 function setup() {{
   const select = document.getElementById('classSelect');
@@ -1035,11 +1129,17 @@ function setup() {{
   document.getElementById('right').onclick = () => pan(0.25, 0);
   document.getElementById('up').onclick = () => pan(0, -0.25);
   document.getElementById('down').onclick = () => pan(0, 0.25);
-  document.getElementById('viewMode').onchange = drawAll;
+  document.getElementById('viewMode').onchange = handleViewModeChange;
   document.getElementById('runIntergrowth').onclick = runIntergrowth;
+  document.getElementById('nextImage').onclick = runNextImage;
   document.getElementById('restorePrediction').onclick = restorePrediction;
   document.getElementById('saveReview').onclick = saveReview;
+  document.getElementById('talcMetricSelect').onchange = updateTalcSliderRange;
+  document.getElementById('talcThreshold').oninput = e => document.getElementById('talcThresholdText').textContent = e.target.value;
+  document.getElementById('applyTalc').onclick = applyTalcThreshold;
   Object.values(canvases).forEach(attachCanvasEvents);
+  updateTalcSliderRange();
+  loadTalcHistograms();
   drawAll();
 }}
 
@@ -1056,19 +1156,29 @@ function zoom(factor) {{
   view.x = cx - view.w / 2; view.y = cy - view.h / 2;
   clampView(); drawAll();
 }}
+function viewportRenderSize() {{
+  const sourceW = Math.max(1, Number(view.w) || 1);
+  const sourceH = Math.max(1, Number(view.h) || 1);
+  const scale = Math.min(1, maxViewportDisplayPixels / Math.max(sourceW, sourceH));
+  return {{
+    w: Math.max(1, Math.round(sourceW * scale)),
+    h: Math.max(1, Math.round(sourceH * scale))
+  }};
+}}
 function canvasSize() {{
-  const h = Math.max(1, Math.round(displayW * view.h / view.w));
-  for (const canvas of Object.values(canvases)) {{ canvas.width = displayW; canvas.height = h; }}
+  const size = viewportRenderSize();
+  for (const canvas of Object.values(canvases)) {{ canvas.width = size.w; canvas.height = size.h; }}
 }}
 function tileUrl(layer) {{
+  const size = viewportRenderSize();
   const params = new URLSearchParams({{
     layer,
     x: String(Math.round(view.x)),
     y: String(Math.round(view.y)),
     width: String(Math.round(view.w)),
     height: String(Math.round(view.h)),
-    output_width: String(displayW),
-    output_height: String(Math.max(1, Math.round(displayW * view.h / view.w))),
+    output_width: String(size.w),
+    output_height: String(size.h),
     t: String(tileRevision)
   }});
   return `/jobs/${{jobId}}/tile?${{params.toString()}}`;
@@ -1077,9 +1187,8 @@ function panelLayer(panel) {{
   const mode = document.getElementById('viewMode').value;
   if (panel === 'raw') return 'raw';
   if (mode === 'review') return panel === 'overlay' ? 'overlay' : 'mask';
-  if (mode === 'intergrowth') return panel === 'overlay' ? 'intergrowth_overlay' : 'intergrowth_mask';
-  if (mode === 'intergrowth_score') return 'intergrowth_score';
-  if (mode === 'intergrowth_confidence') return 'intergrowth_confidence';
+  if (mode === 'intergrowth_normal') return panel === 'overlay' ? 'intergrowth_normal_soft_overlay' : 'intergrowth_normal_soft_mask';
+  if (mode === 'intergrowth_hard') return panel === 'overlay' ? 'intergrowth_hard_soft_overlay' : 'intergrowth_hard_soft_mask';
   return panel === 'overlay' ? 'overlay' : 'mask';
 }}
 function metricLayer() {{
@@ -1173,36 +1282,208 @@ async function brushAtPoint(p) {{
   const response = await fetch(`/jobs/${{jobId}}/brush`, {{method: 'POST', headers: {{'Content-Type': 'application/x-www-form-urlencoded'}}, body}});
   const result = await response.json();
   document.getElementById('message').textContent = response.ok ? `patch saved at ${{p.x}}, ${{p.y}}` : `error: ${{result.error}}`;
-  if (response.ok) tileRevision += 1;
+  if (response.ok) {{ tileRevision += 1; dirty = true; }}
   drawAll();
 }}
 async function restorePrediction() {{
   const response = await fetch(`/jobs/${{jobId}}/restore`, {{method: 'POST'}});
   const result = await response.json();
   document.getElementById('message').textContent = response.ok ? 'prediction mask restored' : `error: ${{result.error}}`;
-  if (response.ok) tileRevision += 1;
+  if (response.ok) {{ tileRevision += 1; dirty = false; }}
   drawAll();
 }}
-async function runIntergrowth() {{
+function isIntergrowthMode() {{
+  const mode = document.getElementById('viewMode').value;
+  return mode === 'intergrowth_normal' || mode === 'intergrowth_hard';
+}}
+async function ensureIntergrowthArtifacts() {{
+  if (intergrowthReady) return true;
+  const message = document.getElementById('message');
+  message.textContent = 'running intergrowth classification...';
   const response = await fetch(`/jobs/${{jobId}}/intergrowth`, {{method: 'POST'}});
   const result = await response.json();
-  document.getElementById('message').textContent = response.ok ? `intergrowth: ${{result.area_metrics?.image_label || 'done'}}` : `error: ${{result.error}}`;
+  message.textContent = response.ok ? `intergrowth: ${{result.area_metrics?.image_label || 'done'}}` : `error: ${{result.error}}`;
   if (response.ok) {{
-    document.getElementById('viewMode').value = 'intergrowth';
+    intergrowthReady = true;
     tileRevision += 1;
+  }}
+  return response.ok;
+}}
+async function handleViewModeChange() {{
+  if (isIntergrowthMode()) {{
+    const ok = await ensureIntergrowthArtifacts();
+    if (!ok) {{
+      document.getElementById('viewMode').value = 'review';
+      return;
+    }}
   }}
   drawAll();
 }}
+async function runIntergrowth() {{
+  const ok = await ensureIntergrowthArtifacts();
+  if (ok) {{
+    document.getElementById('viewMode').value = 'intergrowth_normal';
+    drawAll();
+  }}
+}}
+async function loadTalcHistograms() {{
+  try {{
+    const response = await fetch(`/jobs/${{jobId}}/talc-histograms`);
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || response.statusText);
+    talcHistograms = result.histograms || {{}};
+    drawHistogram('histV', talcHistograms.hsv_value?.histogram || []);
+    drawHistogram('histRgb', talcHistograms.rgb_sum?.histogram || []);
+  }} catch (error) {{
+    document.getElementById('message').textContent = `histogram error: ${{error.message}}`;
+  }}
+}}
+function drawHistogram(canvasId, histogram) {{
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#f6f8fa';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (!histogram.length) return;
+  const maxCount = Math.max(1, ...histogram);
+  const axisY = canvas.height - 22;
+  const barWidth = canvas.width / histogram.length;
+  ctx.fillStyle = '#555';
+  for (let i = 0; i < histogram.length; i++) {{
+    const h = (histogram[i] / maxCount) * (axisY - 8);
+    ctx.fillRect(i * barWidth, axisY - h, Math.max(1, barWidth), h);
+  }}
+  ctx.strokeStyle = '#333';
+  ctx.beginPath(); ctx.moveTo(0, axisY + .5); ctx.lineTo(canvas.width, axisY + .5); ctx.stroke();
+  ctx.fillStyle = '#222';
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const ticks = histogramTicks[canvasId] || [];
+  const maxValue = histogram.length - 1;
+  for (const tick of ticks) {{
+    const x = Math.max(14, Math.min(canvas.width - 18, (tick / maxValue) * canvas.width));
+    ctx.fillText(String(tick), x, axisY + 4);
+  }}
+}}
+function updateTalcSliderRange() {{
+  const metric = document.getElementById('talcMetricSelect').value;
+  const slider = document.getElementById('talcThreshold');
+  slider.max = metric === 'rgb_sum' ? 765 : 255;
+  if (Number(slider.value) > Number(slider.max)) slider.value = slider.max;
+  document.getElementById('talcThresholdText').textContent = slider.value;
+}}
+async function applyTalcThreshold() {{
+  const message = document.getElementById('message');
+  message.textContent = 'applying talc threshold...';
+  const body = new URLSearchParams();
+  body.set('metric', document.getElementById('talcMetricSelect').value);
+  body.set('threshold', document.getElementById('talcThreshold').value);
+  const response = await fetch(`/jobs/${{jobId}}/talc-threshold`, {{method: 'POST', headers: {{'Content-Type': 'application/x-www-form-urlencoded'}}, body}});
+  const result = await response.json();
+  if (!response.ok) {{
+    message.textContent = `error: ${{result.error}}`;
+    return;
+  }}
+  tileRevision += 1;
+  dirty = true;
+  message.textContent = `talc threshold applied: +${{result.new_talc_pixels || 0}} talc, -${{result.cleared_talc_pixels || 0}} talc`;
+  drawAll();
+}}
+function nextImageBody(nextPath) {{
+  const settings = INITIAL.status || {{}};
+  const body = new URLSearchParams();
+  body.set('image_path', nextPath);
+  body.set('model_kind', settings.model_kind || 'binary');
+  if (settings.binary_model_path) body.set('binary_model_path', settings.binary_model_path);
+  if (settings.model_kind === 'ct_unet' && settings.binary_model_path) body.set('ct_unet_model_path', settings.binary_model_path);
+  if (settings.ore_model_path) body.set('ore_model_path', settings.ore_model_path);
+  if (settings.device) body.set('device', settings.device);
+  if (settings.binary_threshold != null) body.set('binary_threshold', String(settings.binary_threshold));
+  if (settings.tile_size != null) body.set('tile_size', String(settings.tile_size));
+  if (settings.overlap != null) body.set('overlap', String(settings.overlap));
+  if (settings.batch_size != null) body.set('batch_size', String(settings.batch_size));
+  return body;
+}}
+function normalizeImagePath(value) {{
+  return String(value || '').replace(/\\\\/g, '/').toLowerCase();
+}}
+async function runNextImage() {{
+  const message = document.getElementById('message');
+  if (dirty && !confirm('Current mask has unsaved edits. Continue without saving?')) return;
+  if (!imageValues.length) {{ message.textContent = 'no indexed images are available'; return; }}
+  const currentPath = normalizeImagePath(INITIAL.imagePath);
+  const currentIndex = imageValues.findIndex(value => normalizeImagePath(value) === currentPath);
+  if (currentIndex < 0) {{
+    message.textContent = 'current image is not in the indexed image list';
+    return;
+  }}
+  const nextPath = imageValues[(currentIndex + 1) % imageValues.length];
+  message.textContent = `starting next image: ${{nextPath}}`;
+  const response = await fetch('/jobs/panorama-predict', {{method: 'POST', headers: {{'Content-Type': 'application/x-www-form-urlencoded'}}, body: nextImageBody(nextPath)}});
+  const result = await response.json();
+  if (!response.ok) {{
+    message.textContent = `next image error: ${{result.error}}`;
+    return;
+  }}
+  pollNextImage(result.job_id);
+}}
+async function pollNextImage(nextJobId) {{
+  const message = document.getElementById('message');
+  const response = await fetch(`/jobs/${{nextJobId}}`);
+  const status = await response.json();
+  const eta = status.eta_sec == null ? 'unknown' : Number(status.eta_sec).toFixed(1) + 's';
+  message.textContent = `next image: status=${{status.status}} phase=${{status.phase}} tiles=${{status.processed_tiles || 0}}/${{status.total_tiles || 0}} eta=${{eta}}`;
+  if (status.status === 'completed') {{
+    window.location.href = `/active-learning?job_id=${{nextJobId}}`;
+    return;
+  }}
+  if (status.status === 'failed' || status.status === 'cancelled') {{
+    message.textContent = `next image ${{status.status}}: ${{status.error || ''}}`;
+    return;
+  }}
+  setTimeout(() => pollNextImage(nextJobId), 1000);
+}}
 async function updateMetrics() {{
-  const p = new URLSearchParams({{layer: metricLayer(), x: Math.round(view.x), y: Math.round(view.y), width: Math.round(view.w), height: Math.round(view.h)}});
-  const full = await (await fetch(`/jobs/${{jobId}}/metrics?layer=${{metricLayer()}}`)).json();
-  const visible = await (await fetch(`/jobs/${{jobId}}/metrics?${{p.toString()}}`)).json();
-  metrics.innerHTML = metricTable('Full image', full) + metricTable('Visible crop', visible);
+  const revision = ++metricsRevision;
+  const layer = metricLayer();
+  const revisionTile = tileRevision;
+  const cropBox = {{x: Math.round(view.x), y: Math.round(view.y), width: Math.round(view.w), height: Math.round(view.h)}};
+  try {{
+    let full = fullMetricsCache.data;
+    if (!full || fullMetricsCache.layer !== layer || fullMetricsCache.tileRevision !== revisionTile) {{
+      const fullResponse = await fetch(`/jobs/${{jobId}}/metrics?layer=${{layer}}`);
+      full = await fullResponse.json();
+      if (!fullResponse.ok) throw new Error(full.error || fullResponse.statusText);
+      if (revision !== metricsRevision) return;
+      fullMetricsCache = {{layer, tileRevision: revisionTile, data: full}};
+    }}
+    const p = new URLSearchParams({{layer, x: cropBox.x, y: cropBox.y, width: cropBox.width, height: cropBox.height}});
+    const visibleResponse = await fetch(`/jobs/${{jobId}}/metrics?${{p.toString()}}`);
+    const visible = await visibleResponse.json();
+    if (!visibleResponse.ok) throw new Error(visible.error || visibleResponse.statusText);
+    if (revision !== metricsRevision) return;
+    metrics.innerHTML = metricTable('Full image', full) + metricTable('Visible crop', visible);
+  }} catch (error) {{
+    if (revision !== metricsRevision) return;
+    metrics.textContent = `metrics unavailable: ${{error.message}}`;
+  }}
 }}
 function metricTable(title, data) {{
+  if (data.intergrowth_ready === false) return `<h3>${{title}}</h3><p>intergrowth not ready</p>`;
   let rows = data.classes.map(c => `<tr><td>${{c.id}}: ${{c.name}}</td><td>${{c.pixels}}</td><td>${{Number(c.fraction).toFixed(5)}}</td></tr>`).join('');
   if (!rows) rows = '<tr><td colspan="3">no non-zero classes</td></tr>';
-  return `<h3>${{title}}</h3><table><tr><th>Class</th><th>Pixels</th><th>Fraction</th></tr>${{rows}}</table>`;
+  const approx = data.approximate ? '<p>approximate UI metrics</p>' : '';
+  let intergrowthRows = '';
+  if (data.intergrowth_metrics) {{
+    intergrowthRows = `<table><tr><th>Metric</th><th>Value</th></tr>` +
+      `<tr><td>Ore pixels</td><td>${{data.intergrowth_metrics.ore_pixels || 0}}</td></tr>` +
+      `<tr><td>Normal ore pixels</td><td>${{data.intergrowth_metrics.normal_ore_pixels || 0}}</td></tr>` +
+      `<tr><td>Hard ore pixels</td><td>${{data.intergrowth_metrics.hard_ore_pixels || 0}}</td></tr>` +
+      `<tr><td>Normal ore / ore pixels</td><td>${{Number(data.intergrowth_metrics.normal_ore_fraction_of_ore || 0).toFixed(5)}}</td></tr>` +
+      `</table>`;
+  }}
+  return `<h3>${{title}}</h3>${{approx}}<table><tr><th>Class</th><th>Pixels</th><th>Fraction</th></tr>${{rows}}</table>${{intergrowthRows}}`;
 }}
 async function saveReview() {{
   const message = document.getElementById('message'); message.textContent = 'saving review...';
@@ -1210,6 +1491,7 @@ async function saveReview() {{
   const response = await fetch(`/jobs/${{jobId}}/save-review`, {{method: 'POST', headers: {{'Content-Type': 'application/x-www-form-urlencoded'}}, body}});
   const result = await response.json();
   message.textContent = response.ok ? `saved: ${{result.metadata_path}}` : `error: ${{result.error}}`;
+  if (response.ok) dirty = false;
 }}
 setup();
 </script>
@@ -1236,6 +1518,7 @@ def _legacy_render_mixed_index_html(
     )
     escaped_message = html.escape(message)
     binary_path = html.escape(str(cfg.binary_model_path))
+    ct_unet_path = html.escape(str(cfg.ct_unet_model_path))
     ore_path = html.escape(str(cfg.ore_model_path))
     panorama_tile_size = int(cfg.panorama_tile_size)
     panorama_overlap = int(cfg.panorama_overlap)
@@ -1289,6 +1572,7 @@ def _legacy_render_mixed_index_html(
     <label>Current model</label>
     <select name="model_kind">
       <option value="trained_binary_ore" selected>trained binary + ore segmentation models</option>
+      <option value="trained_ct_unet">finetuned CT-UNet ore/talc segmentation</option>
       <option value="hsv_dummy">HSV Value dummy baseline</option>
     </select>
     <label>Image path/name</label>
@@ -1308,6 +1592,8 @@ def _legacy_render_mixed_index_html(
 
     <label>Binary model checkpoint</label>
     <input name="binary_model_path" value="{binary_path}">
+    <label>Finetuned CT-UNet checkpoint</label>
+    <input name="ct_unet_model_path" value="{ct_unet_path}">
     <label>Ore segmentation checkpoint</label>
     <input name="ore_model_path" value="{ore_path}">
     <label>Device</label>
@@ -1451,8 +1737,10 @@ def render_inference_html(
     cfg = (config or BackendConfig()).resolve()
     options = _render_image_options(images)
     binary_path = html.escape(str(cfg.binary_model_path))
+    ct_unet_path = html.escape(str(cfg.ct_unet_model_path))
     ore_path = html.escape(str(cfg.ore_model_path))
     escaped_message = html.escape(message)
+    default_legend_json = _json_for_script(ui_class_metadata())
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -1462,8 +1750,9 @@ def render_inference_html(
     body {{ font-family: system-ui, sans-serif; margin: 1rem; line-height: 1.35; background: #f7f7f7; color: #222; }}
     .topbar, .panel {{ background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }}
     .canvas-row {{ display: grid; grid-template-columns: repeat(3, minmax(280px, 1fr)); gap: 1rem; }}
+    .canvas-row > div {{ min-width: 0; }}
     .canvas-box {{ background: #111; border-radius: 8px; padding: .5rem; overflow: auto; }}
-    canvas {{ background: #222; image-rendering: pixelated; cursor: crosshair; max-width: 100%; }}
+    canvas {{ background: #222; image-rendering: pixelated; cursor: crosshair; max-width: none; }}
     label {{ display: inline-block; margin: .25rem .75rem .25rem 0; }}
     input, select, button {{ padding: .35rem; margin: .2rem; }}
     progress {{ width: 100%; }}
@@ -1472,6 +1761,9 @@ def render_inference_html(
     th:first-child, td:first-child {{ text-align: left; }}
     .message {{ font-weight: 600; }}
     .dropzone {{ background: #f6f8fa; border: 1px dashed #aaa; border-radius: 8px; padding: .75rem; margin: .5rem 0; }}
+    .legend {{ display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: .75rem 0 1rem; }}
+    .legend-item {{ display: inline-flex; align-items: center; gap: .35rem; }}
+    .swatch {{ display: inline-block; width: 1rem; height: 1rem; border: 1px solid #555; }}
   </style>
 </head>
 <body>
@@ -1488,10 +1780,12 @@ def render_inference_html(
       <label>Model
         <select name="model_kind" id="modelKind">
           <option value="binary">binary segmentation</option>
+          <option value="ct_unet">finetuned CT-UNet ore/talc segmentation</option>
           <option value="ore">ore segmentation</option>
         </select>
       </label>
       <label>Binary checkpoint <input name="binary_model_path" value="{binary_path}"></label>
+      <label>Finetuned CT-UNet checkpoint <input name="ct_unet_model_path" value="{ct_unet_path}"></label>
       <label>Ore checkpoint <input name="ore_model_path" value="{ore_path}"></label>
       <label>Device <select name="device"><option value="auto">auto</option><option value="cuda">cuda</option><option value="cpu">cpu</option></select></label>
       <label>Binary threshold <input name="binary_threshold" type="number" min="0" max="1" step="0.01" value="0.5"></label>
@@ -1520,13 +1814,13 @@ def render_inference_html(
       <label>View layer
         <select id="viewMode">
           <option value="prediction">prediction mask</option>
-          <option value="intergrowth">intergrowth mask</option>
-          <option value="intergrowth_score">intergrowth score</option>
-          <option value="intergrowth_confidence">intergrowth confidence</option>
+          <option value="intergrowth_normal">normal ore intergrowth mask</option>
+          <option value="intergrowth_hard">hard ore intergrowth mask</option>
         </select>
       </label>
       <span id="viewportText"></span>
     </p>
+    <div class="legend" id="maskLegend"></div>
     <div class="canvas-row">
       <div><h2>Raw image</h2><div class="canvas-box"><canvas id="rawCanvas"></canvas></div></div>
       <div><h2>Raw image + mask</h2><div class="canvas-box"><canvas id="overlayCanvas"></canvas></div></div>
@@ -1540,8 +1834,12 @@ def render_inference_html(
 let currentJobId = null, timer = null, statusData = null;
 let view = {{x:0,y:0,w:1,h:1}};
 let cropSelecting = false, cropStart = null, cropCurrent = null;
-const displayW = 520;
+let intergrowthReady = false;
+let metricsRevision = 0;
+let fullMetricsCache = {{jobId: '', layer: '', data: null}};
+const maxViewportDisplayPixels = 1000;
 const canvases = {{raw: rawCanvas, overlay: overlayCanvas, mask: maskCanvas}};
+const defaultMaskLegend = {default_legend_json};
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
 const uploadStatus = document.getElementById('uploadStatus');
@@ -1571,6 +1869,14 @@ dropzone.addEventListener('dragleave', () => {{ dropzone.style.background = '#f6
 dropzone.addEventListener('drop', event => {{ event.preventDefault(); dropzone.style.background = '#f6f8fa'; if (event.dataTransfer.files[0]) uploadFile(event.dataTransfer.files[0]); }});
 selectNewImage.onclick = () => imagePath.focus();
 selectNewModel.onclick = () => modelKind.focus();
+function renderMaskLegend(rows) {{
+  const legendRows = (rows && rows.length ? rows : defaultMaskLegend);
+  maskLegend.innerHTML = legendRows.map(item => {{
+    const color = item.color || [255, 255, 255];
+    return `<span class="legend-item"><span class="swatch" style="background:rgb(${{color.join(',')}})"></span>${{item.id}}: ${{item.name}}</span>`;
+  }}).join('');
+}}
+renderMaskLegend(defaultMaskLegend);
 inferenceForm.addEventListener('submit', async event => {{
   event.preventDefault();
   const body = new URLSearchParams(new FormData(inferenceForm));
@@ -1593,58 +1899,142 @@ async function pollJob() {{
   if (statusData.status === 'completed') {{
     clearInterval(timer);
     view = {{x:0, y:0, w:statusData.image_width || 1, h:statusData.image_height || 1}};
+    intergrowthReady = Boolean(
+      (statusData.artifacts?.intergrowth_score && statusData.artifacts?.intergrowth_hard_score) ||
+      (statusData.artifacts?.intergrowth_score_grid && statusData.artifacts?.intergrowth_hard_score_grid)
+    );
     viewer.style.display = 'block';
     drawAll();
   }}
-  if (statusData.status === 'failed' || statusData.status === 'cancelled') clearInterval(timer);
+  if (statusData.status === 'failed' || statusData.status === 'cancelled') {{
+    clearInterval(timer);
+    status.textContent += `\\n${{statusData.status}}: ${{statusData.error || ''}} selected_model=${{statusData.selected_model_path || ''}}`;
+  }}
 }}
-function canvasSize() {{ const h = Math.max(1, Math.round(displayW * view.h / view.w)); for (const c of Object.values(canvases)) {{ c.width=displayW; c.height=h; }} }}
+function viewportRenderSize() {{
+  const sourceW = Math.max(1, Number(view.w) || 1);
+  const sourceH = Math.max(1, Number(view.h) || 1);
+  const scale = Math.min(1, maxViewportDisplayPixels / Math.max(sourceW, sourceH));
+  return {{w: Math.max(1, Math.round(sourceW * scale)), h: Math.max(1, Math.round(sourceH * scale))}};
+}}
+function canvasSize() {{ const size = viewportRenderSize(); for (const c of Object.values(canvases)) {{ c.width=size.w; c.height=size.h; }} }}
 function tileUrl(layer) {{
-  const h = Math.max(1, Math.round(displayW * view.h / view.w));
-  const p = new URLSearchParams({{layer, x:Math.round(view.x), y:Math.round(view.y), width:Math.round(view.w), height:Math.round(view.h), output_width:displayW, output_height:h, t:Date.now()}});
+  const size = viewportRenderSize();
+  const p = new URLSearchParams({{layer, x:Math.round(view.x), y:Math.round(view.y), width:Math.round(view.w), height:Math.round(view.h), output_width:size.w, output_height:size.h, t:Date.now()}});
   return `/jobs/${{currentJobId}}/tile?${{p.toString()}}`;
 }}
-function drawLayer(layer, canvas) {{ const img = new Image(); img.onload = () => {{ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); drawCropBorder(ctx, canvas); }}; img.src = tileUrl(layer); }}
+const canvasImages = {{raw: null, overlay: null, mask: null}};
+const canvasImageKeys = {{raw: '', overlay: '', mask: ''}};
+function drawLayer(layer, canvasKey) {{
+  const url = tileUrl(layer);
+  canvasImageKeys[canvasKey] = url;
+  canvasImages[canvasKey] = null;
+  renderCanvas(canvasKey);
+  const img = new Image();
+  img.onload = () => {{
+    if (canvasImageKeys[canvasKey] !== url) return;
+    canvasImages[canvasKey] = img;
+    renderCanvas(canvasKey);
+  }};
+  img.src = url;
+}}
+function renderCanvas(canvasKey) {{
+  const canvas = canvases[canvasKey];
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const img = canvasImages[canvasKey];
+  if (img) ctx.drawImage(img, 0, 0);
+  drawCropBorder(ctx, canvas);
+}}
+function redrawGuides() {{ for (const key of Object.keys(canvases)) renderCanvas(key); }}
 function panelLayer(panel) {{
   const mode = viewMode.value;
   if (panel === 'raw') return 'raw';
   if (mode === 'prediction') return panel === 'overlay' ? 'overlay' : 'mask';
-  if (mode === 'intergrowth') return panel === 'overlay' ? 'intergrowth_overlay' : 'intergrowth_mask';
-  if (mode === 'intergrowth_score') return 'intergrowth_score';
-  if (mode === 'intergrowth_confidence') return 'intergrowth_confidence';
+  if (mode === 'intergrowth_normal') return panel === 'overlay' ? 'intergrowth_normal_soft_overlay' : 'intergrowth_normal_soft_mask';
+  if (mode === 'intergrowth_hard') return panel === 'overlay' ? 'intergrowth_hard_soft_overlay' : 'intergrowth_hard_soft_mask';
   return panel === 'overlay' ? 'overlay' : 'mask';
 }}
 function metricLayer() {{ return viewMode.value === 'prediction' ? 'prediction' : 'intergrowth'; }}
-function drawAll() {{ if (!currentJobId) return; canvasSize(); viewportText.textContent = `x=${{Math.round(view.x)}} y=${{Math.round(view.y)}} w=${{Math.round(view.w)}} h=${{Math.round(view.h)}}`; drawLayer(panelLayer('raw'), rawCanvas); drawLayer(panelLayer('overlay'), overlayCanvas); drawLayer(panelLayer('mask'), maskCanvas); updateMetrics(); }}
+function drawAll() {{ if (!currentJobId) return; canvasSize(); viewportText.textContent = `x=${{Math.round(view.x)}} y=${{Math.round(view.y)}} w=${{Math.round(view.w)}} h=${{Math.round(view.h)}}`; drawLayer(panelLayer('raw'), 'raw'); drawLayer(panelLayer('overlay'), 'overlay'); drawLayer(panelLayer('mask'), 'mask'); updateMetrics(); }}
 function zoom(f) {{ const cx=view.x+view.w/2, cy=view.y+view.h/2; view.w*=f; view.h*=f; view.x=cx-view.w/2; view.y=cy-view.h/2; clampView(); drawAll(); }}
 function clampView() {{ view.w=Math.max(1,Math.min(statusData.image_width,view.w)); view.h=Math.max(1,Math.min(statusData.image_height,view.h)); view.x=Math.max(0,Math.min(statusData.image_width-view.w,view.x)); view.y=Math.max(0,Math.min(statusData.image_height-view.h,view.y)); }}
 zoomIn.onclick = () => zoom(1/1.25); zoomOut.onclick = () => zoom(1.25); fullView.onclick = () => {{ view={{x:0,y:0,w:statusData.image_width,h:statusData.image_height}}; drawAll(); }}; cropMode.onclick = () => {{ cropSelecting=true; cropStart=null; cropCurrent=null; }};
-viewMode.onchange = drawAll;
-runIntergrowth.onclick = async () => {{
-  if (!currentJobId) {{ status.textContent = 'Run prediction before intergrowth classification.'; return; }}
+viewMode.onchange = handleViewModeChange;
+function isIntergrowthMode() {{ return viewMode.value === 'intergrowth_normal' || viewMode.value === 'intergrowth_hard'; }}
+async function ensureIntergrowthArtifacts() {{
+  if (intergrowthReady) return true;
+  if (!currentJobId) {{ status.textContent = 'Run prediction before intergrowth classification.'; return false; }}
+  status.textContent += '\\nrunning intergrowth classification...';
   const body = new URLSearchParams();
   const response = await fetch(`/jobs/${{currentJobId}}/intergrowth`, {{method:'POST', headers:{{'Content-Type':'application/x-www-form-urlencoded'}}, body}});
   const result = await response.json();
-  if (!response.ok) {{ status.textContent = 'Intergrowth error: ' + result.error; return; }}
-  viewMode.value = 'intergrowth';
+  if (!response.ok) {{ status.textContent = 'Intergrowth error: ' + result.error; return false; }}
+  intergrowthReady = true;
+  fullMetricsCache = {{jobId: '', layer: '', data: null}};
   status.textContent += `\\nintergrowth=${{result.area_metrics?.image_label || 'done'}} hard_fraction=${{Number(result.area_metrics?.hard_fraction_of_metallic_ore || 0).toFixed(4)}}`;
+  return true;
+}}
+async function handleViewModeChange() {{
+  if (isIntergrowthMode()) {{
+    const ok = await ensureIntergrowthArtifacts();
+    if (!ok) {{ viewMode.value = 'prediction'; return; }}
+  }}
   drawAll();
+}}
+runIntergrowth.onclick = async () => {{
+  const ok = await ensureIntergrowthArtifacts();
+  if (ok) {{ viewMode.value = 'intergrowth_normal'; drawAll(); }}
 }};
 function toImageXY(canvas, event) {{ const r=canvas.getBoundingClientRect(); return {{x:view.x+((event.clientX-r.left)/r.width)*view.w, y:view.y+((event.clientY-r.top)/r.height)*view.h}}; }}
 function attachCrop(canvas) {{
-  canvas.addEventListener('mousedown', e => {{ if (!cropSelecting) return; cropStart=toImageXY(canvas,e); cropCurrent=cropStart; drawAll(); }});
-  canvas.addEventListener('mousemove', e => {{ if (!cropSelecting || !cropStart) return; cropCurrent=toImageXY(canvas,e); drawAll(); }});
+  canvas.addEventListener('mousedown', e => {{ if (!cropSelecting) return; cropStart=toImageXY(canvas,e); cropCurrent=cropStart; redrawGuides(); }});
+  canvas.addEventListener('mousemove', e => {{ if (!cropSelecting || !cropStart) return; cropCurrent=toImageXY(canvas,e); redrawGuides(); }});
   canvas.addEventListener('mouseup', e => {{ if (!cropSelecting || !cropStart) return; cropCurrent=toImageXY(canvas,e); const x=Math.min(cropStart.x,cropCurrent.x), y=Math.min(cropStart.y,cropCurrent.y); view={{x,y,w:Math.max(1,Math.abs(cropStart.x-cropCurrent.x)),h:Math.max(1,Math.abs(cropStart.y-cropCurrent.y))}}; cropSelecting=false; cropStart=null; cropCurrent=null; clampView(); drawAll(); }});
 }}
 function drawCropBorder(ctx, canvas) {{ if (!cropSelecting || !cropStart || !cropCurrent) return; const sx=(cropStart.x-view.x)/view.w*canvas.width, sy=(cropStart.y-view.y)/view.h*canvas.height; const ex=(cropCurrent.x-view.x)/view.w*canvas.width, ey=(cropCurrent.y-view.y)/view.h*canvas.height; ctx.save(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.strokeRect(Math.min(sx,ex),Math.min(sy,ey),Math.abs(ex-sx),Math.abs(ey-sy)); ctx.restore(); }}
 Object.values(canvases).forEach(attachCrop);
 async function updateMetrics() {{
-  const full = await (await fetch(`/jobs/${{currentJobId}}/metrics?layer=${{metricLayer()}}`)).json();
-  const p = new URLSearchParams({{layer:metricLayer(), x:Math.round(view.x), y:Math.round(view.y), width:Math.round(view.w), height:Math.round(view.h)}});
-  const crop = await (await fetch(`/jobs/${{currentJobId}}/metrics?${{p.toString()}}`)).json();
-  metrics.innerHTML = metricTable('Full image', full) + metricTable('Visible crop', crop);
+  const revision = ++metricsRevision;
+  const layer = metricLayer();
+  const cropBox = {{x: Math.round(view.x), y: Math.round(view.y), width: Math.round(view.w), height: Math.round(view.h)}};
+  try {{
+    let full = fullMetricsCache.data;
+    if (!full || fullMetricsCache.jobId !== currentJobId || fullMetricsCache.layer !== layer) {{
+      const fullResponse = await fetch(`/jobs/${{currentJobId}}/metrics?layer=${{layer}}`);
+      full = await fullResponse.json();
+      if (!fullResponse.ok) throw new Error(full.error || fullResponse.statusText);
+      if (revision !== metricsRevision) return;
+      fullMetricsCache = {{jobId: currentJobId, layer, data: full}};
+    }}
+    const p = new URLSearchParams({{layer, x:cropBox.x, y:cropBox.y, width:cropBox.width, height:cropBox.height}});
+    const cropResponse = await fetch(`/jobs/${{currentJobId}}/metrics?${{p.toString()}}`);
+    const crop = await cropResponse.json();
+    if (!cropResponse.ok) throw new Error(crop.error || cropResponse.statusText);
+    if (revision !== metricsRevision) return;
+    renderMaskLegend(full.legend || full.classes || defaultMaskLegend);
+    metrics.innerHTML = metricTable('Full image', full) + metricTable('Visible crop', crop);
+  }} catch (error) {{
+    if (revision !== metricsRevision) return;
+    metrics.textContent = `metrics unavailable: ${{error.message}}`;
+  }}
 }}
-function metricTable(title, data) {{ let rows = data.classes.map(c => `<tr><td>${{c.id}}: ${{c.name}}</td><td>${{c.pixels}}</td><td>${{Number(c.fraction).toFixed(5)}}</td></tr>`).join(''); if (!rows) rows='<tr><td colspan="3">no non-zero classes</td></tr>'; return `<h3>${{title}}</h3><table><tr><th>Class</th><th>Pixels</th><th>Fraction</th></tr>${{rows}}</table>`; }}
+function metricTable(title, data) {{
+  if (data.intergrowth_ready === false) return `<h3>${{title}}</h3><p>intergrowth not ready</p>`;
+  let rows = data.classes.map(c => `<tr><td>${{c.id}}: ${{c.name}}</td><td>${{c.pixels}}</td><td>${{Number(c.fraction).toFixed(5)}}</td></tr>`).join('');
+  if (!rows) rows='<tr><td colspan="3">no non-zero classes</td></tr>';
+  const approx = data.approximate ? '<p>approximate UI metrics</p>' : '';
+  let intergrowthRows = '';
+  if (data.intergrowth_metrics) {{
+    intergrowthRows = `<table><tr><th>Metric</th><th>Value</th></tr>` +
+      `<tr><td>Ore pixels</td><td>${{data.intergrowth_metrics.ore_pixels || 0}}</td></tr>` +
+      `<tr><td>Normal ore pixels</td><td>${{data.intergrowth_metrics.normal_ore_pixels || 0}}</td></tr>` +
+      `<tr><td>Hard ore pixels</td><td>${{data.intergrowth_metrics.hard_ore_pixels || 0}}</td></tr>` +
+      `<tr><td>Normal ore / ore pixels</td><td>${{Number(data.intergrowth_metrics.normal_ore_fraction_of_ore || 0).toFixed(5)}}</td></tr>` +
+      `</table>`;
+  }}
+  return `<h3>${{title}}</h3>${{approx}}<table><tr><th>Class</th><th>Pixels</th><th>Fraction</th></tr>${{rows}}</table>${{intergrowthRows}}`;
+}}
 </script>
 </body>
 </html>"""
@@ -1660,6 +2050,7 @@ def render_active_learning_html(
     cfg = (config or BackendConfig()).resolve()
     options = _render_image_options(images)
     binary_path = html.escape(str(cfg.binary_model_path))
+    ct_unet_path = html.escape(str(cfg.ct_unet_model_path))
     ore_path = html.escape(str(cfg.ore_model_path))
     escaped_message = html.escape(message)
     return f"""<!doctype html>
@@ -1690,8 +2081,9 @@ def render_active_learning_html(
       <select id="activeImageSelect"><option value="">-- choose image --</option>{options}</select>
       <button id="nextImage" type="button">Next image</button>
       <label>Model</label>
-      <select name="model_kind"><option value="binary">binary segmentation</option><option value="ore">ore segmentation</option></select>
+      <select name="model_kind"><option value="binary">binary segmentation</option><option value="ct_unet">finetuned CT-UNet ore/talc segmentation</option><option value="ore">ore segmentation</option></select>
       <label>Binary checkpoint</label><input name="binary_model_path" value="{binary_path}">
+      <label>Finetuned CT-UNet checkpoint</label><input name="ct_unet_model_path" value="{ct_unet_path}">
       <label>Ore checkpoint</label><input name="ore_model_path" value="{ore_path}">
       <label>Device</label><select name="device"><option value="auto">auto</option><option value="cuda">cuda</option><option value="cpu">cpu</option></select>
       <label>Binary threshold</label><input name="binary_threshold" type="number" min="0" max="1" step="0.01" value="0.5">
@@ -1726,7 +2118,10 @@ async function poll() {{
   const eta = s.eta_sec == null ? 'unknown' : Number(s.eta_sec).toFixed(1) + 's';
   status.textContent = `status=${{s.status}} phase=${{s.phase}} model=${{s.model_kind}} tiles=${{s.processed_tiles||0}}/${{s.total_tiles||0}} elapsed=${{Number(s.elapsed_sec||0).toFixed(1)}}s eta=${{eta}}`;
   if (s.status === 'completed') {{ clearInterval(timer); reviewLink.innerHTML = `<a href="/active-learning?job_id=${{jobId}}">Open mask editor</a>`; }}
-  if (s.status === 'failed' || s.status === 'cancelled') clearInterval(timer);
+  if (s.status === 'failed' || s.status === 'cancelled') {{
+    clearInterval(timer);
+    status.textContent += `\\n${{s.status}}: ${{s.error || ''}} selected_model=${{s.selected_model_path || ''}}`;
+  }}
 }}
 </script>
 </body>

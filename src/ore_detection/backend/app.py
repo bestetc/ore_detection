@@ -12,12 +12,14 @@ from ore_detection.backend.service import (
     BackendConfig,
     accept_prediction_from_request,
     add_panorama_brush_patch_from_request,
+    apply_panorama_talc_threshold_from_request,
     cancel_panorama_job,
     create_prediction_from_request,
     get_panorama_job_status,
     list_saved_class_index_masks,
     list_ui_images,
     panorama_metrics_from_request,
+    panorama_talc_histograms_from_request,
     render_active_learning_html,
     render_index_html,
     render_inference_html,
@@ -35,24 +37,54 @@ from ore_detection.backend.service import (
 )
 
 
+CLIENT_DISCONNECT_WINERRORS = {10053, 10054}
+
+
+def is_client_disconnect(exc: BaseException) -> bool:
+    """Return True for browser/client disconnects while a response is being sent."""
+    if isinstance(exc, (BrokenPipeError, ConnectionAbortedError, ConnectionResetError)):
+        return True
+    return isinstance(exc, OSError) and getattr(exc, "winerror", None) in CLIENT_DISCONNECT_WINERRORS
+
+
 class OreDetectionHandler(SimpleHTTPRequestHandler):
     backend_config = BackendConfig().resolve()
+
+    def _end_headers_safely(self) -> bool:
+        try:
+            self.end_headers()
+            return True
+        except OSError as exc:
+            if is_client_disconnect(exc):
+                self.close_connection = True
+                return False
+            raise
+
+    def _write_body_safely(self, body: bytes) -> bool:
+        try:
+            self.wfile.write(body)
+            return True
+        except OSError as exc:
+            if is_client_disconnect(exc):
+                self.close_connection = True
+                return False
+            raise
 
     def _send_html(self, html: str, status: int = 200) -> None:
         body = html.encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        if self._end_headers_safely():
+            self._write_body_safely(body)
 
     def _send_json(self, data: dict, status: int = 200) -> None:
         body = json.dumps(data).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        if self._end_headers_safely():
+            self._write_body_safely(body)
 
     def _send_file(self, path) -> None:
         if not path.exists() or not path.is_file():
@@ -62,13 +94,15 @@ class OreDetectionHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(path.stat().st_size))
-        self.end_headers()
+        if not self._end_headers_safely():
+            return
         with path.open("rb") as handle:
             while True:
                 chunk = handle.read(1024 * 1024)
                 if not chunk:
                     break
-                self.wfile.write(chunk)
+                if not self._write_body_safely(chunk):
+                    return
 
     def _send_image(self, image, *, fmt: str = "PNG") -> None:
         buffer = BytesIO()
@@ -78,8 +112,8 @@ class OreDetectionHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        if self._end_headers_safely():
+            self._write_body_safely(body)
 
     def do_GET(self) -> None:  # noqa: N802 - stdlib API
         parsed = urlparse(self.path)
@@ -193,7 +227,22 @@ class OreDetectionHandler(SimpleHTTPRequestHandler):
             status = start_panorama_prediction_from_request(config=self.backend_config, **form)
             self._send_json(status)
         except Exception as exc:
-            self._send_json({"error": str(exc)}, status=400)
+            model_kind = form.get("model_kind") if form.get("model_kind") in {"binary", "ore", "ct_unet"} else "binary"
+            selected_field = {
+                "binary": "binary_model_path",
+                "ore": "ore_model_path",
+                "ct_unet": "ct_unet_model_path",
+            }[model_kind]
+            selected_path = form.get(selected_field, "")
+            self._send_json(
+                {
+                    "error": str(exc),
+                    "model_kind": model_kind,
+                    "selected_model_path": selected_path,
+                    "exception_type": type(exc).__name__,
+                },
+                status=400,
+            )
 
     def _handle_job_get(self, parsed) -> None:
         parts = [part for part in parsed.path.split("/") if part]
@@ -222,6 +271,9 @@ class OreDetectionHandler(SimpleHTTPRequestHandler):
                     )
                 )
                 return
+            if len(parts) == 3 and parts[2] == "talc-histograms":
+                self._send_json(panorama_talc_histograms_from_request(job_id=job_id, config=self.backend_config))
+                return
             if len(parts) == 3 and parts[2] == "tile":
                 query = parse_qs(parsed.query)
                 image = render_panorama_tile_from_request(
@@ -238,6 +290,9 @@ class OreDetectionHandler(SimpleHTTPRequestHandler):
                 self._send_image(image, fmt="PNG")
                 return
         except Exception as exc:
+            if is_client_disconnect(exc):
+                self.close_connection = True
+                return
             self._send_json({"error": str(exc)}, status=400)
             return
         self.send_error(404)
@@ -259,6 +314,11 @@ class OreDetectionHandler(SimpleHTTPRequestHandler):
             if action == "restore":
                 self._send_json(restore_panorama_prediction_from_request(job_id=job_id, config=self.backend_config))
                 return
+            if action == "talc-threshold":
+                self._send_json(
+                    apply_panorama_talc_threshold_from_request(job_id=job_id, config=self.backend_config, **form)
+                )
+                return
             if action == "intergrowth":
                 self._send_json(run_intergrowth_from_request(job_id=job_id, config=self.backend_config, **form))
                 return
@@ -266,6 +326,9 @@ class OreDetectionHandler(SimpleHTTPRequestHandler):
                 self._send_json(save_panorama_review_from_request(job_id=job_id, config=self.backend_config, **form))
                 return
         except Exception as exc:
+            if is_client_disconnect(exc):
+                self.close_connection = True
+                return
             self._send_json({"error": str(exc)}, status=400)
             return
         self.send_error(404)

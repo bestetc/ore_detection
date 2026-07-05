@@ -12,6 +12,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, Iterable
 
+import numpy as np
 from PIL import Image
 
 
@@ -80,8 +81,11 @@ def ui_classes_for_model(class_names: Iterable[str] | None = None) -> tuple[UiCl
     classes: list[UiClass] = []
     for index, name in enumerate(names):
         color = MODEL_COLOR_CYCLE[index % len(MODEL_COLOR_CYCLE)]
-        if index == 0 or name.lower() in {"background", "background_matrix"}:
+        normalized_name = name.lower()
+        if index == 0 or normalized_name in {"background", "background_matrix"}:
             color = (0, 0, 0)
+        elif normalized_name == "talc":
+            color = (255, 255, 255)
         classes.append(UiClass(index, name, color, f"model class `{name}`"))
 
     next_id = len(classes)
@@ -90,7 +94,7 @@ def ui_classes_for_model(class_names: Iterable[str] | None = None) -> tuple[UiCl
         ("normal_ore", (0, 120, 255), "reviewed normal/coarse intergrowth region"),
         ("hard_ore", (255, 220, 0), "reviewed hard/thin/ragged intergrowth region"),
     )
-    existing = {item.name for item in classes}
+    existing = {item.name.lower() for item in classes}
     for name, color, meaning in reserved_extras:
         if name not in existing:
             classes.append(UiClass(next_id, name, color, meaning))
@@ -109,12 +113,11 @@ def palette_from_classes(classes: Iterable[UiClass]) -> dict[int, tuple[int, int
 
 def class_index_to_color_image(mask: Image.Image, *, classes: Iterable[UiClass] = BASE_UI_CLASSES) -> Image.Image:
     """Colorize a class-index mask for UI display."""
-    mask_l = mask.convert("L")
-    palette = palette_from_classes(classes)
-    pixels = [palette.get(int(value), (255, 255, 255)) for value in mask_l.tobytes()]
-    out = Image.new("RGB", mask_l.size)
-    out.putdata(pixels)
-    return out
+    mask_array = np.asarray(mask.convert("L"), dtype=np.uint8)
+    lookup = np.full((256, 3), 255, dtype=np.uint8)
+    for class_id, color in palette_from_classes(classes).items():
+        lookup[int(class_id) & 255] = color
+    return Image.fromarray(lookup[mask_array])
 
 
 def _decode_data_url(data_url: str) -> tuple[str, bytes]:
@@ -162,14 +165,13 @@ def save_uploaded_image_from_data_url(
 
 def mask_metrics(mask: Image.Image, *, classes: Iterable[UiClass]) -> dict[str, float]:
     """Return area fractions for requested UI metrics."""
-    mask_l = mask.convert("L")
-    values = list(mask_l.tobytes())
-    total = max(1, len(values))
+    values = np.asarray(mask.convert("L"), dtype=np.uint8)
+    total = max(1, int(values.size))
     id_by_name = {item.name: item.id for item in classes}
     result: dict[str, float] = {}
     for name in ("hard_ore", "normal_ore", "talc"):
         class_id = id_by_name.get(name)
-        result[name] = (sum(1 for value in values if value == class_id) / total) if class_id is not None else 0.0
+        result[name] = (int(np.count_nonzero(values == int(class_id))) / total) if class_id is not None else 0.0
     return result
 
 
@@ -214,7 +216,7 @@ def save_edited_mask_from_data_url(
         raise RuntimeError("PyTorch is required to save active-learning one-hot tensors") from exc
 
     height, width = image.height, image.width
-    values = torch.tensor(list(image.tobytes()), dtype=torch.int64).view(height, width)
+    values = torch.from_numpy(np.array(image, dtype=np.uint8, copy=True)).to(dtype=torch.int64).view(height, width)
     one_hot = torch.stack([(values == class_id).to(dtype=torch.uint8) for class_id in channel_ids], dim=0)
     torch.save(
         {

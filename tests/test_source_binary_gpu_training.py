@@ -42,6 +42,49 @@ class TestSourceBinaryGpuTraining(unittest.TestCase):
                 self.assertEqual(tuple(aug_masks.shape), (2, 1, 6, 6))
                 self.assertTrue(set(float(value) for value in aug_masks.detach().cpu().flatten()).issubset({0.0, 1.0}))
 
+    def test_augment_source_binary_batch_preserves_optional_weights(self):
+        for device in self._devices():
+            with self.subTest(device=str(device)):
+                images = self.torch.rand((1, 3, 8, 8), device=device)
+                masks = self.torch.zeros((1, 1, 8, 8), dtype=self.torch.float32, device=device)
+                weights = self.torch.ones((1, 1, 8, 8), dtype=self.torch.float32, device=device)
+                weights[:, :, 0:2, 0:2] = 0.0
+
+                aug_images, aug_masks, aug_weights = augment_source_binary_batch(
+                    images,
+                    masks,
+                    weights=weights,
+                    output_size=8,
+                    hflip_p=0.0,
+                    vflip_p=0.0,
+                    scale_range=(1.0, 1.0),
+                )
+
+                self.assertEqual(tuple(aug_images.shape), (1, 3, 8, 8))
+                self.assertEqual(tuple(aug_masks.shape), (1, 1, 8, 8))
+                self.assertEqual(tuple(aug_weights.shape), (1, 1, 8, 8))
+                self.assertTrue(set(float(value) for value in aug_weights.detach().cpu().flatten()).issubset({0.0, 1.0}))
+                self.assertEqual(float(aug_weights.sum().detach().cpu()), 60.0)
+
+    def test_augment_source_binary_batch_can_preserve_class_indices(self):
+        for device in self._devices():
+            with self.subTest(device=str(device)):
+                images = self.torch.rand((1, 3, 4, 4), device=device)
+                masks = self.torch.zeros((1, 1, 4, 4), dtype=self.torch.float32, device=device)
+                masks[:, :, 1:3, 1:3] = 2.0
+
+                _, aug_masks = augment_source_binary_batch(
+                    images,
+                    masks,
+                    output_size=4,
+                    binarize_masks=False,
+                    hflip_p=0.0,
+                    vflip_p=0.0,
+                    scale_range=(1.0, 1.0),
+                )
+
+                self.assertIn(2.0, set(float(value) for value in aug_masks.detach().cpu().flatten()))
+
     def test_binary_losses_report_perfect_prediction(self):
         target = self.torch.tensor([[[[0.0, 1.0], [1.0, 0.0]]]])
         logits = self.torch.where(target > 0.5, self.torch.tensor(20.0), self.torch.tensor(-20.0))

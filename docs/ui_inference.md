@@ -49,13 +49,14 @@ You can either:
 Model options:
 
 - `binary segmentation`: predicts the trusted ore/background outline.
+- `finetuned CT-UNet ore/talc segmentation`: predicts background, ore, and talc with the finetuned CT-UNet checkpoint at `models/source_binary_segmentation_ct_unet/001/best.pt`.
 - `ore segmentation`: predicts mineral class labels directly.
 
 For CPU-only machines:
 
 - set `Device` to `auto` or `cpu`;
 - use `Batch size = 1` on low-RAM machines;
-- leave `Tile size = 512` and `Overlap = 128` unless memory is tight.
+- defaults are `Tile size = 512`, `Overlap = 0`, and `Batch size = 16`.
 
 Click `Run prediction`.
 
@@ -69,9 +70,9 @@ After the job completes, the viewer shows:
 
 Use `+ scale`, `- scale`, `Crop area`, and `Full image` to inspect the same region across all three panels. The metrics table reports class pixel counts and fractions for the full image and the visible crop.
 
-## 6. Optional Intergrowth Classification
+## 6. Optional Intergrowth Review
 
-Click `Run intergrowth classification` after a completed prediction. This writes intergrowth hard/normal artifacts and enables the intergrowth layers in the viewer.
+Select `normal ore intergrowth mask` or `hard ore intergrowth mask` after a completed prediction. The UI automatically runs intergrowth classification when needed, then shows the selected soft mask. The metric table reports `Normal ore / ore pixels`.
 
 ## 7. Output Location
 
@@ -88,4 +89,4 @@ Important files include:
 - `ore_probability.png` and `ore_confidence.png` for binary segmentation;
 - `ore_multiclass_mask.png` for ore segmentation;
 - preview and overlay PNG/JPEG files;
-- intergrowth files when `Run intergrowth classification` is used.
+- intergrowth files when an intergrowth mask layer is selected or `Run intergrowth classification` is used.

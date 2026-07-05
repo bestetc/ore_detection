@@ -201,6 +201,20 @@ def _pad_to_minimum(image, mask, *, target_size: int):
     return image, mask
 
 
+def _pad_weight_to_minimum(weight, *, target_size: int):
+    torch, F = _require_torch()
+    _, height, width = weight.shape
+    pad_height = max(0, target_size - height)
+    pad_width = max(0, target_size - width)
+    if pad_height == 0 and pad_width == 0:
+        return weight
+    left = pad_width // 2
+    right = pad_width - left
+    top = pad_height // 2
+    bottom = pad_height - top
+    return F.pad(weight.unsqueeze(0), (left, right, top, bottom), value=0.0).squeeze(0)
+
+
 def _random_crop(image, mask, *, output_size: int):
     torch, _ = _require_torch()
     _, height, width = image.shape
@@ -209,23 +223,33 @@ def _random_crop(image, mask, *, output_size: int):
     return image[:, top : top + output_size, left : left + output_size], mask[:, top : top + output_size, left : left + output_size]
 
 
+def _crop_like(weight, *, top: int, left: int, output_size: int):
+    return weight[:, top : top + output_size, left : left + output_size]
+
+
 def augment_source_binary_batch(
     images,
     masks,
     *,
+    weights=None,
     output_size: int,
+    binarize_masks: bool = True,
     hflip_p: float = 0.5,
     vflip_p: float = 0.5,
     scale_range: tuple[float, float] = (0.5, 2.0),
     brightness_range: tuple[float, float] = (0.6, 1.4),
     contrast_range: tuple[float, float] = (0.6, 1.4),
 ):
-    """Apply train-only GPU augmentation to images and binary masks."""
+    """Apply train-only GPU augmentation to images and segmentation masks."""
     torch, F = _require_torch()
     if images.ndim != 4:
         raise ValueError(f"images must be shaped [B,3,H,W], got {tuple(images.shape)}")
     if masks.ndim != 4:
         raise ValueError(f"masks must be shaped [B,1,H,W], got {tuple(masks.shape)}")
+    if weights is not None and weights.ndim != 4:
+        raise ValueError(f"weights must be shaped [B,1,H,W], got {tuple(weights.shape)}")
+    if weights is not None and tuple(weights.shape) != tuple(masks.shape):
+        raise ValueError(f"weights shape must match masks shape, got {tuple(weights.shape)} vs {tuple(masks.shape)}")
     scale_min, scale_max = scale_range
     if output_size < 1:
         raise ValueError(f"output_size must be positive, got {output_size}")
@@ -234,21 +258,29 @@ def augment_source_binary_batch(
 
     augmented_images = []
     augmented_masks = []
+    augmented_weights = []
     for sample_index in range(int(images.shape[0])):
         image = images[sample_index]
         mask = masks[sample_index]
+        weight = weights[sample_index] if weights is not None else None
 
         if float(torch.rand((), device=images.device).item()) < hflip_p:
             image = torch.flip(image, dims=(2,))
             mask = torch.flip(mask, dims=(2,))
+            if weight is not None:
+                weight = torch.flip(weight, dims=(2,))
         if float(torch.rand((), device=images.device).item()) < vflip_p:
             image = torch.flip(image, dims=(1,))
             mask = torch.flip(mask, dims=(1,))
+            if weight is not None:
+                weight = torch.flip(weight, dims=(1,))
 
         rotation = int(torch.randint(0, 4, (), device=images.device).item())
         if rotation:
             image = torch.rot90(image, rotation, dims=(1, 2))
             mask = torch.rot90(mask, rotation, dims=(1, 2))
+            if weight is not None:
+                weight = torch.rot90(weight, rotation, dims=(1, 2))
 
         scale = scale_min + (scale_max - scale_min) * float(torch.rand((), device=images.device).item())
         scaled_height = max(1, int(round(image.shape[1] * scale)))
@@ -264,9 +296,23 @@ def augment_source_binary_batch(
             size=(scaled_height, scaled_width),
             mode="nearest",
         ).squeeze(0)
+        if weight is not None:
+            weight = F.interpolate(
+                weight.unsqueeze(0),
+                size=(scaled_height, scaled_width),
+                mode="nearest",
+            ).squeeze(0)
 
         image, mask = _pad_to_minimum(image, mask, target_size=output_size)
-        image, mask = _random_crop(image, mask, output_size=output_size)
+        if weight is not None:
+            weight = _pad_weight_to_minimum(weight, target_size=output_size)
+        _, height, width = image.shape
+        top = 0 if height == output_size else int(torch.randint(0, height - output_size + 1, (), device=image.device).item())
+        left = 0 if width == output_size else int(torch.randint(0, width - output_size + 1, (), device=image.device).item())
+        image = image[:, top : top + output_size, left : left + output_size]
+        mask = mask[:, top : top + output_size, left : left + output_size]
+        if weight is not None:
+            weight = _crop_like(weight, top=top, left=left, output_size=output_size)
 
         brightness = brightness_range[0] + (brightness_range[1] - brightness_range[0]) * float(
             torch.rand((), device=images.device).item()
@@ -277,9 +323,15 @@ def augment_source_binary_batch(
         channel_mean = image.mean(dim=(1, 2), keepdim=True)
         image = ((image - channel_mean) * contrast + channel_mean) * brightness
         image = image.clamp(0.0, 1.0)
-        mask = (mask > 0.5).float()
+        mask = (mask > 0.5).float() if binarize_masks else mask.round().float()
+        if weight is not None:
+            weight = (weight > 0.5).float()
 
         augmented_images.append(image)
         augmented_masks.append(mask)
+        if weight is not None:
+            augmented_weights.append(weight)
 
+    if weights is not None:
+        return torch.stack(augmented_images), torch.stack(augmented_masks), torch.stack(augmented_weights)
     return torch.stack(augmented_images), torch.stack(augmented_masks)

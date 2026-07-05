@@ -1,0 +1,16 @@
+{
+  "model_type": "local_erosion_ratio_score",
+  "version": 1,
+  "erosion_kernel_size": 5,
+  "erosion_iterations": 3,
+  "window_size": 128,
+  "normal_threshold": 0.4,
+  "min_ore_fraction": 0.05,
+  "class_ids": {
+    "background": 0,
+    "talc": 3,
+    "normal_ore": 4,
+    "hard_ore": 5,
+    "ignore": 255
+  }
+}

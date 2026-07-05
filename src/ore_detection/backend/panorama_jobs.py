@@ -30,8 +30,8 @@ class PanoramaPredictionRequest:
     device: str = "auto"
     binary_threshold: float = 0.5
     tile_size: int = 512
-    overlap: int = 128
-    batch_size: int = 4
+    overlap: int = 0
+    batch_size: int = 16
 
 
 def _resolve_device(device: str) -> str:
@@ -146,23 +146,24 @@ class PanoramaJobManager:
         try:
             self._update(job_id, status="running", phase="loading_models")
             resolved_device = _resolve_device(request.device)
-            if request.model_kind == "binary":
+            if request.model_kind in {"binary", "ct_unet"}:
                 selected_model = load_simple_unet_checkpoint(request.binary_model_path, device=resolved_device)
             elif request.model_kind == "ore":
                 if request.ore_model_path is None:
                     raise FileNotFoundError("ore_model_path is required for ore model inference")
                 selected_model = load_simple_unet_checkpoint(request.ore_model_path, device=resolved_device)
             else:
-                raise ValueError("model_kind must be `binary` or `ore`")
+                raise ValueError("model_kind must be `binary`, `ct_unet`, or `ore`")
             self._update(job_id, phase="opening_image", device=resolved_device)
 
             def progress_callback(values: dict[str, Any]) -> None:
                 self._update(job_id, **values)
 
+            effective_model_kind = "ore" if request.model_kind == "ore" or selected_model.metadata.task == "multiclass" else "binary"
             artifacts = save_tiled_selected_model_prediction(
                 request.image_path,
                 model=selected_model,
-                model_kind=request.model_kind,
+                model_kind=effective_model_kind,
                 output_root=predictions_root / "panorama",
                 binary_threshold=request.binary_threshold,
                 tile_size=request.tile_size,
@@ -180,11 +181,19 @@ class PanoramaJobManager:
                 sample_dir=str(artifacts.sample_dir),
                 artifacts=metadata.get("artifacts", {}),
                 metadata_path=str(artifacts.metadata_path),
+                effective_model_kind=effective_model_kind,
             )
         except PanoramaPredictionCancelled as exc:
             self._update(job_id, status="cancelled", phase="cancelled", error=str(exc))
         except Exception as exc:  # keep backend alive and expose actionable UI status
-            self._update(job_id, status="failed", phase="failed", error=str(exc))
+            selected_path = request.ore_model_path if request.model_kind == "ore" else request.binary_model_path
+            self._update(
+                job_id,
+                status="failed",
+                phase="failed",
+                error=f"{request.model_kind} panorama prediction failed with {type(exc).__name__}: {exc}",
+                selected_model_path=str(selected_path) if selected_path is not None else None,
+            )
         finally:
             with self._lock:
                 self._cancel_events.pop(job_id, None)

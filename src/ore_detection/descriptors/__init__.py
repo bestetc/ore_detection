@@ -14,7 +14,9 @@ from ore_detection.descriptors.intergrowth_classification import (
 from ore_detection.descriptors.erosion_ratio import (
     ErosionRatioConfig,
     classify_erosion_ratio_intergrowth,
+    erosion_ratio_score_grid,
     erosion_ratio_score_map,
+    load_erosion_ratio_config,
 )
 
 __all__ = [
@@ -22,8 +24,10 @@ __all__ = [
     "IntergrowthClassifierConfig",
     "classify_erosion_ratio_intergrowth",
     "classify_intergrowth_mask",
+    "erosion_ratio_score_grid",
     "erosion_ratio_score_map",
     "extract_intergrowth_features",
+    "load_erosion_ratio_config",
     "save_intergrowth_artifacts",
     "summarize_intergrowth_prediction",
     "summarize_prediction_artifacts",

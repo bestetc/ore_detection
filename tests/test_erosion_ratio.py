@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from PIL import Image
 
@@ -7,6 +8,7 @@ from ore_detection.descriptors.erosion_ratio import (
     choose_erosion_ratio_threshold,
     classify_erosion_ratio_intergrowth,
     erosion_ratio_score_map,
+    load_erosion_ratio_config,
 )
 from ore_detection.descriptors.intergrowth_classification import HARD_ORE_ID, NORMAL_ORE_ID
 
@@ -114,6 +116,15 @@ class TestErosionRatio(unittest.TestCase):
         self.assertGreater(result["threshold"], 0.2)
         self.assertLess(result["threshold"], 0.8)
         self.assertEqual(result["balanced_accuracy"], 1.0)
+
+    def test_tracked_erosion_ratio_config_uses_notebook_defaults(self):
+        config = load_erosion_ratio_config(Path("models/intergrowth_erosion_ratio/001/classifier.json"))
+
+        self.assertEqual(config.erosion_kernel_size, 5)
+        self.assertEqual(config.erosion_iterations, 3)
+        self.assertEqual(config.window_size, 128)
+        self.assertEqual(config.normal_threshold, 0.4)
+        self.assertEqual(config.min_ore_fraction, 0.05)
 
 
 if __name__ == "__main__":

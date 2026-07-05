@@ -651,6 +651,9 @@ def save_tiled_selected_model_prediction(
             timings["stitch_write_sec"] += time.perf_counter() - write_start
 
     metadata_path = sample_dir / "metadata.json"
+    talc_prediction_enabled = model_kind == "ore" and any(
+        str(name).strip().lower() == "talc" for name in model.metadata.class_names
+    )
     artifacts = {
         "ore_mask": str(ore_mask_path) if model_kind == "binary" else None,
         "ore_probability": str(ore_probability_path) if model_kind == "binary" else None,
@@ -682,8 +685,8 @@ def save_tiled_selected_model_prediction(
             "selected_model_only": True,
             "binary_outline_is_primary": model_kind == "binary",
             "multiclass_clipped_to_binary_mask": False,
-            "talc_prediction_enabled": False,
-            "talc_policy": "manual_ui_annotation_only",
+            "talc_prediction_enabled": talc_prediction_enabled,
+            "talc_policy": "checkpoint_class" if talc_prediction_enabled else "manual_ui_annotation_only",
         },
         "timings": timings,
         "binary_checkpoint": model.metadata.as_dict() if model_kind == "binary" else None,

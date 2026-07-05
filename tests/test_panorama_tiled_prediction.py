@@ -33,7 +33,9 @@ class TestPanoramaTiledPrediction(unittest.TestCase):
         metadata = CheckpointMetadata(
             path=Path("binary.pt"),
             task="binary",
+            architecture="simple_unet",
             out_channels=1,
+            model_kwargs={},
             class_names=(),
             background_index=None,
             image_size=16,

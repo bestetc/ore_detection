@@ -11,6 +11,8 @@ from typing import Any
 
 from PIL import Image
 
+from ore_detection.models.cs_unet import create_cs_unet
+from ore_detection.models.ct_unet import create_ct_unet
 from ore_detection.models.simple_unet import create_simple_unet
 from ore_detection.visualization.overlay import save_overlay
 
@@ -55,7 +57,9 @@ class CheckpointMetadata:
 
     path: Path
     task: str
+    architecture: str
     out_channels: int
+    model_kwargs: dict[str, Any]
     class_names: tuple[str, ...]
     background_index: int | None
     image_size: int | None
@@ -71,7 +75,9 @@ class CheckpointMetadata:
         return {
             "path": str(self.path),
             "task": self.task,
+            "architecture": self.architecture,
             "out_channels": self.out_channels,
+            "model_kwargs": _jsonable(self.model_kwargs),
             "class_names": list(self.class_names),
             "background_index": self.background_index,
             "image_size": self.image_size,
@@ -120,6 +126,17 @@ class SegmentationPrediction:
     ore_confidence: Image.Image
     multiclass_mask: Image.Image | None
     multiclass_confidence: Image.Image | None
+    talc_mask: Image.Image | None
+    talc_probability: Image.Image | None
+    metadata: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class MulticlassSegmentationImagePrediction:
+    """Predicted class-index mask and confidence for a multiclass checkpoint."""
+
+    multiclass_mask: Image.Image
+    multiclass_confidence: Image.Image
     metadata: dict[str, Any]
 
 
@@ -133,6 +150,8 @@ class SegmentationPredictionArtifacts:
     metadata_path: Path
     multiclass_mask_path: Path | None = None
     multiclass_confidence_path: Path | None = None
+    talc_mask_path: Path | None = None
+    talc_probability_path: Path | None = None
 
 
 def _state_dict_from_checkpoint(checkpoint: Any) -> dict[str, Any]:
@@ -140,7 +159,7 @@ def _state_dict_from_checkpoint(checkpoint: Any) -> dict[str, Any]:
         return checkpoint["model"]
     if isinstance(checkpoint, dict) and "head.weight" in checkpoint:
         return checkpoint
-    raise ValueError("checkpoint does not contain a SimpleUNet state_dict under key 'model'")
+    raise ValueError("checkpoint does not contain a segmentation model state_dict under key 'model'")
 
 
 def _out_channels_from_state_dict(state_dict: dict[str, Any]) -> int:
@@ -173,10 +192,14 @@ def read_checkpoint_metadata(path: str | Path) -> CheckpointMetadata:
         raise ValueError("checkpoint normalization mean/std must each contain three RGB values")
 
     background_index = checkpoint.get("background_index") if isinstance(checkpoint, dict) else None
+    architecture = str(checkpoint.get("architecture", "simple_unet")) if isinstance(checkpoint, dict) else "simple_unet"
+    model_kwargs = dict(checkpoint.get("model_kwargs", {})) if isinstance(checkpoint, dict) else {}
     return CheckpointMetadata(
         path=path,
         task=task,
+        architecture=architecture,
         out_channels=out_channels,
+        model_kwargs=model_kwargs,
         class_names=class_names,
         background_index=int(background_index) if background_index is not None else (0 if task == "multiclass" else None),
         image_size=int(checkpoint["image_size"]) if isinstance(checkpoint, dict) and checkpoint.get("image_size") else None,
@@ -192,15 +215,28 @@ def read_checkpoint_metadata(path: str | Path) -> CheckpointMetadata:
     )
 
 
+def _create_model_from_checkpoint_metadata(metadata: CheckpointMetadata):
+    architecture = metadata.architecture.strip().lower()
+    model_kwargs = dict(metadata.model_kwargs)
+    model_kwargs.setdefault("out_channels", metadata.out_channels)
+    if architecture in {"ct_unet", "ctunet"}:
+        return create_ct_unet(**model_kwargs)
+    if architecture in {"cs_unet", "csunet"}:
+        return create_cs_unet(**model_kwargs)
+    if architecture in {"", "simple_unet", "simpleunet"}:
+        return create_simple_unet(**model_kwargs)
+    raise ValueError(f"unsupported checkpoint architecture: {metadata.architecture!r}")
+
+
 def load_simple_unet_checkpoint(path: str | Path, *, device: str | object = "cpu") -> LoadedSegmentationModel:
-    """Load an existing SimpleUNet checkpoint for inference."""
+    """Load an existing supported segmentation checkpoint for inference."""
     torch, _ = _require_torch()
     device = torch.device(device)
     path = Path(path)
     checkpoint = _torch_load(path, map_location=device)
     state_dict = _state_dict_from_checkpoint(checkpoint)
     metadata = read_checkpoint_metadata(path)
-    model = create_simple_unet(out_channels=metadata.out_channels).to(device)
+    model = _create_model_from_checkpoint_metadata(metadata).to(device)
     model.load_state_dict(state_dict)
     model.eval()
     return LoadedSegmentationModel(model=model, metadata=metadata, device=device)
@@ -327,6 +363,109 @@ def clip_class_image_to_binary(class_image: Image.Image, binary_mask: Image.Imag
     return clipped
 
 
+def binary_mask_from_class_image(class_image: Image.Image, *, background_index: int = 0) -> Image.Image:
+    """Return a binary ore mask where class labels differ from background."""
+    class_l = class_image.convert("L")
+    background = int(background_index)
+    values = [255 if int(label) != background else 0 for label in class_l.tobytes()]
+    mask = Image.new("L", class_l.size)
+    mask.putdata(values)
+    return mask
+
+
+def _normalized_class_names(class_names: tuple[str, ...], *, class_count: int) -> tuple[str, ...]:
+    names = tuple(str(name).strip().lower() for name in class_names)
+    if len(names) < class_count:
+        names = names + tuple(f"class_{index}" for index in range(len(names), class_count))
+    return names[:class_count]
+
+
+def _talc_class_indices(class_names: tuple[str, ...], *, class_count: int) -> tuple[int, ...]:
+    names = _normalized_class_names(class_names, class_count=class_count)
+    return tuple(index for index, name in enumerate(names) if name == "talc")
+
+
+def _ore_class_indices(
+    class_names: tuple[str, ...],
+    *,
+    class_count: int,
+    background_index: int,
+) -> tuple[int, ...]:
+    names = _normalized_class_names(class_names, class_count=class_count)
+    background_names = {"background", "background_matrix"}
+    excluded_names = background_names | {"talc", "ignore"}
+    return tuple(
+        index
+        for index, name in enumerate(names)
+        if index != int(background_index) and name not in excluded_names
+    )
+
+
+def _class_index_mask(class_index: Any, indices: tuple[int, ...]):
+    torch, _ = _require_torch()
+    mask = torch.zeros_like(class_index, dtype=torch.bool)
+    for index in indices:
+        mask |= class_index == int(index)
+    return mask.to(dtype=torch.uint8)
+
+
+def _probability_sum(probabilities: Any, indices: tuple[int, ...]):
+    torch, _ = _require_torch()
+    if not indices:
+        return torch.zeros_like(probabilities[:, 0])
+    return probabilities[:, list(indices)].sum(dim=1).clamp(0.0, 1.0)
+
+
+def predict_multiclass_segmentation_image(
+    image: Image.Image,
+    *,
+    ore_model: LoadedSegmentationModel,
+) -> MulticlassSegmentationImagePrediction:
+    """Predict a raw multiclass mineral mask without clipping to a binary model."""
+    if ore_model.metadata.task != "multiclass":
+        raise ValueError(f"ore_model must be a multiclass checkpoint, got task={ore_model.metadata.task!r}")
+
+    torch, _ = _require_torch()
+    original_size = image.size
+    background_index = 0 if ore_model.metadata.background_index is None else int(ore_model.metadata.background_index)
+    with torch.no_grad():
+        ore_input = _image_to_tensor(image, ore_model.metadata, device=ore_model.device)
+        ore_logits = ore_model.model(ore_input)
+        ore_prediction = multiclass_prediction_from_logits(
+            ore_logits,
+            class_names=ore_model.metadata.class_names,
+            background_index=background_index,
+        )
+        multiclass_mask = _class_index_to_image(ore_prediction.class_index)
+        multiclass_confidence = _single_channel_to_image(ore_prediction.class_probability, scale=255)
+        if multiclass_mask.size != original_size:
+            multiclass_mask = multiclass_mask.resize(original_size, Image.Resampling.NEAREST)
+            multiclass_confidence = multiclass_confidence.resize(original_size, Image.Resampling.BILINEAR)
+
+    talc_prediction_enabled = bool(
+        _talc_class_indices(
+            ore_model.metadata.class_names,
+            class_count=ore_model.metadata.out_channels,
+        )
+    )
+    metadata = {
+        "method": "trained_ore_multiclass_segmentation",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "policy": {
+            "binary_outline_is_primary": False,
+            "ore_mask_from_multiclass_non_background": True,
+            "talc_prediction_enabled": talc_prediction_enabled,
+            "talc_policy": "checkpoint_class" if talc_prediction_enabled else "manual_ui_annotation_only",
+        },
+        "ore_checkpoint": ore_model.metadata.as_dict(),
+    }
+    return MulticlassSegmentationImagePrediction(
+        multiclass_mask=multiclass_mask,
+        multiclass_confidence=multiclass_confidence,
+        metadata=metadata,
+    )
+
+
 def predict_segmentation_image(
     image: Image.Image,
     *,
@@ -334,26 +473,55 @@ def predict_segmentation_image(
     ore_model: LoadedSegmentationModel | None = None,
     binary_threshold: float = 0.5,
 ) -> SegmentationPrediction:
-    """Predict binary ore and optional clipped multiclass ore masks for one image."""
+    """Predict ore mask and optional multiclass/talc masks for one image."""
     torch, _ = _require_torch()
     original_size = image.size
+    multiclass_mask = None
+    multiclass_confidence = None
+    talc_mask = None
+    talc_probability = None
+
     with torch.no_grad():
         binary_input = _image_to_tensor(image, binary_model.metadata, device=binary_model.device)
         binary_logits = binary_model.model(binary_input)
-        binary_prediction = binary_prediction_from_logits(binary_logits, threshold=binary_threshold)
 
-        ore_mask = _single_channel_to_image(binary_prediction.mask, scale=1)
-        ore_probability = _single_channel_to_image(binary_prediction.probability, scale=255)
-        ore_confidence = _single_channel_to_image(binary_prediction.confidence, scale=255)
+        if binary_model.metadata.task == "multiclass":
+            background_index = binary_model.metadata.background_index or 0
+            class_count = binary_model.metadata.out_channels
+            primary_prediction = multiclass_prediction_from_logits(
+                binary_logits,
+                class_names=binary_model.metadata.class_names,
+                background_index=background_index,
+            )
+            ore_indices = _ore_class_indices(
+                binary_model.metadata.class_names,
+                class_count=class_count,
+                background_index=background_index,
+            )
+            talc_indices = _talc_class_indices(binary_model.metadata.class_names, class_count=class_count)
+            ore_mask = _single_channel_to_image(_class_index_mask(primary_prediction.class_index, ore_indices), scale=1)
+            ore_probability = _single_channel_to_image(_probability_sum(primary_prediction.probabilities, ore_indices), scale=255)
+            ore_confidence = _single_channel_to_image(primary_prediction.class_probability, scale=255)
+            multiclass_mask = _class_index_to_image(primary_prediction.class_index)
+            multiclass_confidence = _single_channel_to_image(primary_prediction.class_probability, scale=255)
+            if talc_indices:
+                talc_mask = _single_channel_to_image(_class_index_mask(primary_prediction.class_index, talc_indices), scale=1)
+                talc_probability = _single_channel_to_image(
+                    _probability_sum(primary_prediction.probabilities, talc_indices),
+                    scale=255,
+                )
+        else:
+            binary_prediction = binary_prediction_from_logits(binary_logits, threshold=binary_threshold)
+            ore_mask = _single_channel_to_image(binary_prediction.mask, scale=1)
+            ore_probability = _single_channel_to_image(binary_prediction.probability, scale=255)
+            ore_confidence = _single_channel_to_image(binary_prediction.confidence, scale=255)
 
         if ore_mask.size != original_size:
             ore_mask = ore_mask.resize(original_size, Image.Resampling.NEAREST)
             ore_probability = ore_probability.resize(original_size, Image.Resampling.BILINEAR)
             ore_confidence = ore_confidence.resize(original_size, Image.Resampling.BILINEAR)
 
-        multiclass_mask = None
-        multiclass_confidence = None
-        if ore_model is not None:
+        if ore_model is not None and binary_model.metadata.task == "binary":
             ore_input = _image_to_tensor(image, ore_model.metadata, device=ore_model.device)
             ore_logits = ore_model.model(ore_input)
             ore_prediction = multiclass_prediction_from_logits(
@@ -372,18 +540,38 @@ def predict_segmentation_image(
                 background_index=ore_model.metadata.background_index or 0,
             )
 
+        if multiclass_mask is not None and multiclass_mask.size != original_size:
+            multiclass_mask = multiclass_mask.resize(original_size, Image.Resampling.NEAREST)
+        if multiclass_confidence is not None and multiclass_confidence.size != original_size:
+            multiclass_confidence = multiclass_confidence.resize(original_size, Image.Resampling.BILINEAR)
+        if talc_mask is not None and talc_mask.size != original_size:
+            talc_mask = talc_mask.resize(original_size, Image.Resampling.NEAREST)
+        if talc_probability is not None and talc_probability.size != original_size:
+            talc_probability = talc_probability.resize(original_size, Image.Resampling.BILINEAR)
+
+    talc_enabled = talc_mask is not None
+    primary_checkpoint = binary_model.metadata.as_dict()
     metadata = {
-        "method": "trained_binary_ore_segmentation",
+        "method": "trained_multiclass_ore_talc_segmentation"
+        if binary_model.metadata.task == "multiclass"
+        else "trained_binary_ore_segmentation",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "policy": {
-            "binary_outline_is_primary": True,
-            "multiclass_clipped_to_binary_mask": ore_model is not None,
-            "talc_prediction_enabled": False,
-            "talc_policy": "manual_ui_annotation_only",
+            "binary_outline_is_primary": binary_model.metadata.task == "binary",
+            "multiclass_clipped_to_binary_mask": ore_model is not None and binary_model.metadata.task == "binary",
+            "ore_mask_excludes_talc_class": binary_model.metadata.task == "multiclass",
+            "talc_prediction_enabled": talc_enabled,
+            "talc_policy": "checkpoint_class" if talc_enabled else "manual_ui_annotation_only",
         },
         "binary_threshold": binary_threshold,
-        "binary_checkpoint": binary_model.metadata.as_dict(),
-        "ore_checkpoint": ore_model.metadata.as_dict() if ore_model is not None else None,
+        "binary_checkpoint": primary_checkpoint,
+        "ore_checkpoint": (
+            ore_model.metadata.as_dict()
+            if ore_model is not None
+            else primary_checkpoint
+            if binary_model.metadata.task == "multiclass"
+            else None
+        ),
     }
     return SegmentationPrediction(
         ore_mask=ore_mask,
@@ -391,6 +579,8 @@ def predict_segmentation_image(
         ore_confidence=ore_confidence,
         multiclass_mask=multiclass_mask,
         multiclass_confidence=multiclass_confidence,
+        talc_mask=talc_mask,
+        talc_probability=talc_probability,
         metadata=metadata,
     )
 
@@ -437,6 +627,8 @@ def save_segmentation_prediction(
     multiclass_confidence_path = (
         sample_dir / "ore_multiclass_confidence.png" if prediction.multiclass_confidence is not None else None
     )
+    talc_mask_path = sample_dir / "talc_mask.png" if prediction.talc_mask is not None else None
+    talc_probability_path = sample_dir / "talc_probability.png" if prediction.talc_probability is not None else None
 
     prediction.ore_mask.save(ore_mask_path)
     prediction.ore_probability.save(ore_probability_path)
@@ -446,6 +638,10 @@ def save_segmentation_prediction(
         prediction.multiclass_mask.save(multiclass_mask_path)
     if prediction.multiclass_confidence is not None and multiclass_confidence_path is not None:
         prediction.multiclass_confidence.save(multiclass_confidence_path)
+    if prediction.talc_mask is not None and talc_mask_path is not None:
+        prediction.talc_mask.save(talc_mask_path)
+    if prediction.talc_probability is not None and talc_probability_path is not None:
+        prediction.talc_probability.save(talc_probability_path)
 
     prediction.metadata["artifacts"] = {
         "ore_mask": str(ore_mask_path),
@@ -454,6 +650,8 @@ def save_segmentation_prediction(
         "overlay": str(overlay_path),
         "ore_multiclass_mask": str(multiclass_mask_path) if multiclass_mask_path is not None else None,
         "ore_multiclass_confidence": str(multiclass_confidence_path) if multiclass_confidence_path is not None else None,
+        "talc_mask": str(talc_mask_path) if talc_mask_path is not None else None,
+        "talc_probability": str(talc_probability_path) if talc_probability_path is not None else None,
     }
     metadata_path.write_text(json.dumps(_jsonable(prediction.metadata), indent=2), encoding="utf-8")
 
@@ -466,4 +664,6 @@ def save_segmentation_prediction(
         metadata_path=metadata_path,
         multiclass_mask_path=multiclass_mask_path,
         multiclass_confidence_path=multiclass_confidence_path,
+        talc_mask_path=talc_mask_path,
+        talc_probability_path=talc_probability_path,
     )

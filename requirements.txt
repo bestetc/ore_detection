@@ -3,3 +3,4 @@
 # PyTorch is installed separately by setup_ui_cpu.* so CPU-only users do not
 # accidentally install a CUDA wheel from a project requirements file.
 Pillow==12.2.0
+numpy>=2.0

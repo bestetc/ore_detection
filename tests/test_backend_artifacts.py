@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
+from ore_detection.backend.app import OreDetectionHandler, is_client_disconnect
 from ore_detection.backend.service import (
     BackendConfig,
     create_prediction_from_request,
@@ -13,6 +14,33 @@ from ore_detection.backend.service import (
 
 
 class TestBackendArtifacts(unittest.TestCase):
+    def test_client_disconnect_detection_covers_aborted_browser_fetch(self):
+        self.assertTrue(is_client_disconnect(ConnectionAbortedError(10053, "connection aborted")))
+
+    def test_response_write_swallow_client_disconnect(self):
+        class AbortedWriter:
+            def write(self, body):
+                raise ConnectionAbortedError(10053, "connection aborted")
+
+        handler = OreDetectionHandler.__new__(OreDetectionHandler)
+        handler.wfile = AbortedWriter()
+        handler.close_connection = False
+
+        self.assertFalse(handler._write_body_safely(b"{}"))
+        self.assertTrue(handler.close_connection)
+
+    def test_response_write_reraises_non_disconnect_os_errors(self):
+        class FailingWriter:
+            def write(self, body):
+                raise OSError("disk-style failure")
+
+        handler = OreDetectionHandler.__new__(OreDetectionHandler)
+        handler.wfile = FailingWriter()
+        handler.close_connection = False
+
+        with self.assertRaises(OSError):
+            handler._write_body_safely(b"{}")
+
     def test_render_prediction_html_shows_overlay_and_accept_form(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

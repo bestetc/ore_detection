@@ -42,6 +42,11 @@ class TestUiRunScripts(unittest.TestCase):
         self.assertIn("pip install torch", content)
         self.assertIn("./run_ui.sh", content)
 
+    def test_runtime_requirements_include_numpy_for_ui_arrays(self):
+        requirements = Path("requirements.txt").read_text(encoding="utf-8").lower()
+
+        self.assertIn("numpy", requirements)
+
 
 if __name__ == "__main__":
     unittest.main()

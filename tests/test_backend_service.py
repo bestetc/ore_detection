@@ -2,6 +2,7 @@ import base64
 from io import BytesIO
 import json
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -10,6 +11,7 @@ from PIL import Image
 from ore_detection.backend.service import (
     BackendConfig,
     create_prediction_from_request,
+    get_panorama_job_status,
     list_saved_class_index_masks,
     list_ui_images,
     render_active_learning_html,
@@ -19,8 +21,11 @@ from ore_detection.backend.service import (
     render_prediction_html,
     save_edited_mask_from_request,
     save_uploaded_image_from_request,
+    start_panorama_prediction_from_request,
 )
 from ore_detection.backend.ui_annotation import ui_class_metadata, ui_classes_for_model
+from ore_detection.models.ct_unet import create_ct_unet
+from ore_detection.models.simple_unet import create_simple_unet
 
 
 def image_data_url(image: Image.Image) -> str:
@@ -57,8 +62,165 @@ class TestBackendService(unittest.TestCase):
         config = BackendConfig().resolve()
 
         self.assertTrue(config.binary_model_path.exists())
+        self.assertTrue(config.ct_unet_model_path.exists())
         self.assertTrue(config.ore_model_path.exists())
         self.assertTrue(config.intergrowth_classifier_path.exists())
+        self.assertTrue(config.intergrowth_erosion_ratio_path.exists())
+        self.assertEqual(config.panorama_tile_size, 512)
+        self.assertEqual(config.panorama_overlap, 0)
+        self.assertEqual(config.panorama_batch_size, 16)
+
+    def test_start_panorama_ore_ignores_unused_binary_checkpoint_path(self):
+        try:
+            import torch
+        except ModuleNotFoundError:
+            self.skipTest("PyTorch is not installed")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image_path = root / "source.png"
+            checkpoint_path = root / "models" / "ore.pt"
+            checkpoint_path.parent.mkdir(parents=True)
+            Image.new("RGB", (16, 16), (100, 110, 120)).save(image_path)
+            model = create_simple_unet(out_channels=3)
+            torch.save(
+                {
+                    "model": model.state_dict(),
+                    "image_size": 16,
+                    "class_names": ("background", "pyrite", "chalcopyrite"),
+                    "background_index": 0,
+                    "normalization": {"mean": (0.0, 0.0, 0.0), "std": (1.0, 1.0, 1.0)},
+                },
+                checkpoint_path,
+            )
+            outside_binary = root.parent / f"{root.name}_outside" / "missing-binary.pt"
+            config = BackendConfig(
+                project_root=root,
+                predictions_root=root / "predictions",
+                panorama_jobs_root=root / "jobs",
+                binary_model_path=root / "default-missing-binary.pt",
+                ore_model_path=checkpoint_path,
+            )
+
+            started = start_panorama_prediction_from_request(
+                image_path=str(image_path),
+                model_kind="ore",
+                binary_model_path=str(outside_binary),
+                ore_model_path=str(checkpoint_path),
+                device="cpu",
+                tile_size="16",
+                overlap="0",
+                batch_size="1",
+                config=config,
+            )
+            deadline = time.time() + 10
+            status = started
+            while time.time() < deadline:
+                status = get_panorama_job_status(started["job_id"], config=config)
+                if status["status"] in {"completed", "failed", "cancelled"}:
+                    break
+                time.sleep(0.05)
+
+            self.assertEqual(status["status"], "completed", status.get("error"))
+            self.assertEqual(status["model_kind"], "ore")
+            self.assertIsNone(status["artifacts"]["ore_mask"])
+            self.assertIn("ore_multiclass_mask", status["artifacts"])
+
+    def test_start_panorama_ct_unet_uses_finetuned_checkpoint_path(self):
+        try:
+            import torch
+        except ModuleNotFoundError:
+            self.skipTest("PyTorch is not installed")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image_path = root / "source.png"
+            checkpoint_path = root / "models" / "ct_unet.pt"
+            checkpoint_path.parent.mkdir(parents=True)
+            Image.new("RGB", (16, 16), (100, 110, 120)).save(image_path)
+            model_kwargs = {"base_channels": 2, "num_heads": 1, "transformer_layers": 0, "token_grid_size": 2}
+            model = create_ct_unet(out_channels=1, **model_kwargs)
+            torch.save(
+                {
+                    "model": model.state_dict(),
+                    "architecture": "ct_unet",
+                    "model_kwargs": model_kwargs,
+                    "image_size": 16,
+                    "normalization": {"mean": (0.0, 0.0, 0.0), "std": (1.0, 1.0, 1.0)},
+                },
+                checkpoint_path,
+            )
+            config = BackendConfig(
+                project_root=root,
+                predictions_root=root / "predictions",
+                panorama_jobs_root=root / "jobs",
+                binary_model_path=root / "missing-simple-unet.pt",
+                ct_unet_model_path=checkpoint_path,
+            )
+
+            started = start_panorama_prediction_from_request(
+                image_path=str(image_path),
+                model_kind="ct_unet",
+                ct_unet_model_path=str(checkpoint_path),
+                device="cpu",
+                tile_size="16",
+                overlap="0",
+                batch_size="1",
+                config=config,
+            )
+            deadline = time.time() + 10
+            status = started
+            while time.time() < deadline:
+                status = get_panorama_job_status(started["job_id"], config=config)
+                if status["status"] in {"completed", "failed", "cancelled"}:
+                    break
+                time.sleep(0.05)
+
+            self.assertEqual(status["status"], "completed", status.get("error"))
+            self.assertEqual(status["model_kind"], "ct_unet")
+            self.assertEqual(Path(status["binary_model_path"]), checkpoint_path)
+            self.assertIn("ore_mask", status["artifacts"])
+
+    def test_single_image_ct_unet_prediction_uses_finetuned_checkpoint_path(self):
+        try:
+            import torch
+        except ModuleNotFoundError:
+            self.skipTest("PyTorch is not installed")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image_path = root / "source.png"
+            checkpoint_path = root / "models" / "ct_unet.pt"
+            checkpoint_path.parent.mkdir(parents=True)
+            Image.new("RGB", (16, 16), (100, 110, 120)).save(image_path)
+            model_kwargs = {"base_channels": 2, "num_heads": 1, "transformer_layers": 0, "token_grid_size": 2}
+            model = create_ct_unet(out_channels=1, **model_kwargs)
+            torch.save(
+                {
+                    "model": model.state_dict(),
+                    "architecture": "ct_unet",
+                    "model_kwargs": model_kwargs,
+                    "image_size": 16,
+                    "normalization": {"mean": (0.0, 0.0, 0.0), "std": (1.0, 1.0, 1.0)},
+                },
+                checkpoint_path,
+            )
+            config = BackendConfig(
+                project_root=root,
+                predictions_root=root / "predictions",
+                ct_unet_model_path=checkpoint_path,
+            )
+
+            artifacts = create_prediction_from_request(
+                image_path=str(image_path),
+                model_kind="trained_ct_unet",
+                ct_unet_model_path=str(checkpoint_path),
+                device="cpu",
+                config=config,
+            )
+
+            self.assertTrue(artifacts.ore_mask_path.exists())
+            self.assertIn("trained_ct_unet", str(artifacts.sample_dir))
 
     def test_create_prediction_from_request_writes_artifacts(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -93,18 +255,72 @@ class TestBackendService(unittest.TestCase):
 
         self.assertIn("/jobs/panorama-predict", html)
         self.assertIn("binary segmentation", html)
+        self.assertIn("finetuned CT-UNet ore/talc segmentation", html)
+        self.assertIn("ct_unet_model_path", html)
+        self.assertIn("source_binary_segmentation_ct_unet", html)
         self.assertIn("ore segmentation", html)
         self.assertIn("Crop area", html)
         self.assertIn("Metrics", html)
+        self.assertIn('id="maskLegend"', html)
+        self.assertIn("const defaultMaskLegend", html)
+        self.assertIn("function renderMaskLegend", html)
+        self.assertIn("renderMaskLegend(full.legend || full.classes || defaultMaskLegend)", html)
         self.assertIn("Select new image", html)
         self.assertIn("Run intergrowth classification", html)
-        self.assertIn("intergrowth score", html)
+        self.assertIn("normal ore intergrowth mask", html)
+        self.assertIn("hard ore intergrowth mask", html)
+        self.assertIn("function ensureIntergrowthArtifacts()", html)
+        self.assertIn("viewMode.onchange = handleViewModeChange", html)
+        self.assertIn("intergrowth_normal_soft_mask", html)
+        self.assertIn("intergrowth_hard_soft_mask", html)
+        self.assertIn("intergrowth_score_grid", html)
+        self.assertIn("intergrowth not ready", html)
+        self.assertIn("approximate UI metrics", html)
         self.assertIn("/intergrowth", html)
+        self.assertIn("Normal ore / ore pixels", html)
+        self.assertIn('name="tile_size" type="number" min="64" step="32" value="512"', html)
+        self.assertIn('name="overlap" type="number" min="0" step="16" value="0"', html)
+        self.assertIn('name="batch_size" type="number" min="1" step="1" value="16"', html)
+        self.assertIn("const maxViewportDisplayPixels = 1000;", html)
+        self.assertIn("function viewportRenderSize()", html)
+        self.assertIn("maxViewportDisplayPixels / Math.max(sourceW, sourceH)", html)
+        self.assertIn("output_width:size.w", html)
+        self.assertIn("output_height:size.h", html)
+        self.assertIn("const canvasImages = {raw: null, overlay: null, mask: null};", html)
+        self.assertIn("function renderCanvas(canvasKey)", html)
+        self.assertIn("function redrawGuides()", html)
+        self.assertIn("let metricsRevision = 0;", html)
+        self.assertIn("let fullMetricsCache = {jobId: '', layer: '', data: null};", html)
+        self.assertIn(
+            "const cropBox = {x: Math.round(view.x), y: Math.round(view.y), width: Math.round(view.w), height: Math.round(view.h)};",
+            html,
+        )
+        self.assertIn("if (revision !== metricsRevision) return;", html)
+        self.assertIn(
+            "const p = new URLSearchParams({layer, x:cropBox.x, y:cropBox.y, width:cropBox.width, height:cropBox.height});",
+            html,
+        )
+        self.assertIn(
+            "canvas.addEventListener('mousedown', e => { if (!cropSelecting) return; cropStart=toImageXY(canvas,e); cropCurrent=cropStart; redrawGuides(); });",
+            html,
+        )
+        self.assertIn(
+            "canvas.addEventListener('mousemove', e => { if (!cropSelecting || !cropStart) return; cropCurrent=toImageXY(canvas,e); redrawGuides(); });",
+            html,
+        )
+        self.assertIn(
+            "cropCurrent=toImageXY(canvas,e); const x=Math.min(cropStart.x,cropCurrent.x)",
+            html,
+        )
+        self.assertNotIn("cropCurrent=toImageXY(canvas,e); drawAll();", html)
         self.assertIn("Drag and drop an image here", html)
         self.assertIn("/upload-image", html)
         self.assertIn("fileInput", html)
         self.assertNotIn("Brush", html)
         self.assertNotIn("Talc mask creation", html)
+        self.assertNotIn("intergrowth score", html.lower())
+        self.assertNotIn("Mean erosion-ratio score", html)
+        self.assertNotIn("intergrowth confidence", html.lower())
 
     def test_render_active_learning_html_has_image_next_and_prediction_launcher(self):
         html = render_active_learning_html([])
@@ -115,6 +331,9 @@ class TestBackendService(unittest.TestCase):
         self.assertIn("/active-learning?job_id=", html)
         self.assertIn("/jobs/panorama-predict", html)
         self.assertIn("binary segmentation", html)
+        self.assertIn("finetuned CT-UNet ore/talc segmentation", html)
+        self.assertIn("ct_unet_model_path", html)
+        self.assertIn("source_binary_segmentation_ct_unet", html)
         self.assertIn("ore segmentation", html)
 
     def test_panorama_review_hover_redraws_guides_without_tile_refetch(self):
@@ -140,6 +359,7 @@ class TestBackendService(unittest.TestCase):
                     "ore_confidence": str(mask_path),
                     "ore_probability": str(mask_path),
                     "review_mask": str(mask_path),
+                    "base_prediction_mask": str(mask_path),
                 },
             }
             (sample_dir / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
@@ -161,10 +381,53 @@ class TestBackendService(unittest.TestCase):
 
             self.assertIn("const canvasImages = {raw: null, overlay: null, mask: null};", html)
             self.assertIn("function redrawGuides()", html)
+            self.assertIn("let metricsRevision = 0;", html)
+            self.assertIn("let fullMetricsCache = {layer: '', tileRevision: -1, data: null};", html)
+            self.assertIn(
+                "const cropBox = {x: Math.round(view.x), y: Math.round(view.y), width: Math.round(view.w), height: Math.round(view.h)};",
+                html,
+            )
+            self.assertIn("if (revision !== metricsRevision) return;", html)
+            self.assertIn(
+                "const p = new URLSearchParams({layer, x: cropBox.x, y: cropBox.y, width: cropBox.width, height: cropBox.height});",
+                html,
+            )
+            self.assertIn("const maxViewportDisplayPixels = 1000;", html)
+            self.assertIn("function viewportRenderSize()", html)
+            self.assertIn("maxViewportDisplayPixels / Math.max(sourceW, sourceH)", html)
+            self.assertIn("output_width: String(size.w)", html)
+            self.assertIn("output_height: String(size.h)", html)
             self.assertIn("if (cropSelecting && cropStart) { cropCurrent = p; redrawGuides(); return; }", html)
             self.assertIn("canvas.addEventListener('mouseleave', () => { hoverPoint = null; redrawGuides(); });", html)
             self.assertIn("t: String(tileRevision)", html)
             self.assertNotIn("t: String(Date.now())", html)
+            self.assertIn("Talc mask creation", html)
+            self.assertIn("Histogram: HSV Value", html)
+            self.assertIn("Histogram: R + G + B", html)
+            self.assertIn("histV: [0, 64, 128, 192, 255]", html)
+            self.assertIn("histRgb: [0, 191, 383, 574, 765]", html)
+            self.assertIn("talcMetricSelect", html)
+            self.assertIn("talcThreshold", html)
+            self.assertIn("Apply talc threshold to mask", html)
+            self.assertIn("next image", html)
+            self.assertIn("normal ore intergrowth mask", html)
+            self.assertIn("hard ore intergrowth mask", html)
+            self.assertIn("function ensureIntergrowthArtifacts()", html)
+            self.assertIn("viewMode').onchange = handleViewModeChange", html)
+            self.assertIn("intergrowth_normal_soft_mask", html)
+            self.assertIn("intergrowth_hard_soft_mask", html)
+            self.assertIn("intergrowth not ready", html)
+            self.assertIn("approximate UI metrics", html)
+            self.assertIn("/talc-histograms", html)
+            self.assertIn("/talc-threshold", html)
+            self.assertIn("Normal ore / ore pixels", html)
+            self.assertNotIn("intergrowth score", html.lower())
+            self.assertNotIn("Mean erosion-ratio score", html)
+            self.assertNotIn("intergrowth confidence", html.lower())
+            self.assertLess(html.find("<strong>Image:"), html.find('id="nextImage"'))
+            self.assertLess(html.find('id="nextImage"'), html.find('<div class="tools">'))
+            self.assertLess(html.find("Mask only"), html.find("Talc mask creation"))
+            self.assertLess(html.find("Talc mask creation"), html.find("Metrics"))
 
     def test_render_prediction_html_contains_editor_and_talc_controls(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -207,6 +470,13 @@ class TestBackendService(unittest.TestCase):
         self.assertIn("hard_ore", [item.name for item in classes])
         talc = next(item for item in classes if item.name == "talc")
         self.assertEqual(talc.color, (255, 255, 255))
+
+    def test_model_ui_classes_preserve_model_talc_index_and_color(self):
+        classes = ui_classes_for_model(("background", "ore", "talc"))
+
+        self.assertEqual([item.name for item in classes[:3]], ["background", "ore", "talc"])
+        self.assertEqual(classes[2].id, 2)
+        self.assertEqual(classes[2].color, (255, 255, 255))
 
     def test_save_edited_mask_from_request_writes_png_metadata_and_torch_tensor(self):
         try:

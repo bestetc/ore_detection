@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from ore_detection.models.cs_unet import create_cs_unet
+from ore_detection.models.ct_unet import create_ct_unet
 from ore_detection.training.torch_dataset import SourceTorchDataset
 from ore_detection.models.simple_unet import create_simple_unet
 
@@ -37,6 +38,23 @@ class TestTorchOptionalPipeline(unittest.TestCase):
         logits = model(torch.zeros((2, 3, 32, 40), dtype=torch.float32))
 
         self.assertEqual(tuple(logits.shape), (2, 5, 32, 40))
+
+    def test_ct_unet_factory_output_shape(self):
+        try:
+            import torch
+        except ModuleNotFoundError:
+            self.skipTest("PyTorch is not installed")
+
+        model = create_ct_unet(
+            out_channels=1,
+            base_channels=4,
+            num_heads=2,
+            transformer_layers=1,
+            token_grid_size=2,
+        )
+        logits = model(torch.zeros((2, 3, 32, 40), dtype=torch.float32))
+
+        self.assertEqual(tuple(logits.shape), (2, 1, 32, 40))
 
 
 if __name__ == "__main__":
